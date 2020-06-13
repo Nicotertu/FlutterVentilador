@@ -431,76 +431,65 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return MaterialApp (
-      title: MyAppState.appTitle,
-      theme: ThemeData(
-        textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
-        primaryColor: MyAppState.appTitleColor,
-        canvasColor: MyAppState.canvasColor,
-        dividerTheme: DividerThemeData(
-          space: 15,
-        )
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
+        centerTitle: true,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(MyAppState.appTitle),
-          centerTitle: true,
-        ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          width: size.width, 
-          height: size.height, 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(flex: 1, child: returnButtonRow(context)),
-              Expanded(flex: 10, child: 
-                Column(children: <Widget>[
-                  Text(
-                    _ports.length > 0
-                        ? "Available Serial Ports"
-                        : "No serial devices available",
-                    style: Theme.of(context).textTheme.headline6),
-                  ..._ports,
-                  Text('Status: $_status\n'),
-                  ListTile(
-                    title: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Text To Send',
-                      ),
-                    ),
-                    trailing: RaisedButton(
-                      child: Text("Send"),
-                      onPressed: _port == null
-                          ? null
-                          : () async {
-                              if (_port == null) {
-                                return;
-                              }
-                              sendDataToSTM(_textController.text);
-                              _textController.text = "";
-                            },
+      body: Container(
+        padding: EdgeInsets.all(20),
+        width: size.width, 
+        height: size.height, 
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(flex: 1, child: returnButtonRow(context)),
+            Expanded(flex: 10, child: 
+              Column(children: <Widget>[
+                Text(
+                  _ports.length > 0
+                      ? "Available Serial Ports"
+                      : "No serial devices available",
+                  style: Theme.of(context).textTheme.headline6),
+                ..._ports,
+                Text('Status: $_status\n'),
+                ListTile(
+                  title: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Text To Send',
                     ),
                   ),
-                  Text("Result Data", style: Theme.of(context).textTheme.headline),
-                  ...?_serialData
-                  // Use this to see raw data from USB
-                  //...?_serialData,
+                  trailing: RaisedButton(
+                    child: Text("Send"),
+                    onPressed: _port == null
+                        ? null
+                        : () async {
+                            if (_port == null) {
+                              return;
+                            }
+                            sendDataToSTM(_textController.text);
+                            _textController.text = "";
+                          },
+                  ),
+                ),
+                Text("Result Data", style: Theme.of(context).textTheme.headline),
+                ...?_serialData
+                // Use this to see raw data from USB
+                //...?_serialData,
 
-                  // Use this to test without USB connection (generating values within the App)
-                  //Text(parseDataFromUSB(textWidgets)),
+                // Use this to test without USB connection (generating values within the App)
+                //Text(parseDataFromUSB(textWidgets)),
 
-                  // Use this to test with USB connection (generating values with STM)
-                  //Text(parseDataFromUSB(_serialData))
-                  ],
-                )
+                // Use this to test with USB connection (generating values with STM)
+                //Text(parseDataFromUSB(_serialData))
+                ],
               )
-            ]
-          )
-        ),
-      )
+            )
+          ]
+        )
+      ),
     );
   }
 }

@@ -91,7 +91,7 @@ class Graph3Page extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(MyAppState.appTitle),
+          title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
           centerTitle: true,
         ),
         body: Container(

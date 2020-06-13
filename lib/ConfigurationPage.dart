@@ -164,7 +164,7 @@ class ConfigurationPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(MyAppState.appTitle),
+          title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
           centerTitle: true,
         ),
         body: Container(
@@ -234,108 +234,130 @@ class ConfigurationPage extends StatelessWidget {
                           Expanded(child: TextField(controller: k3Text, decoration: InputDecoration(labelText: k3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
                         ],
                       ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button3Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Pausa
-                            ConnectUSBPageState.pauseTransaction();
-                            ConnectUSBPageState.sendDataToSTM(button3Text);
-                          },
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button3Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Pausa
+                                ConnectUSBPageState.pauseTransaction();
+                                ConnectUSBPageState.sendDataToSTM(button3Text);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 30),
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button4Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Continuar
+                                ConnectUSBPageState.resumeTransaction();
+                                ConnectUSBPageState.sendDataToSTM(button4Text);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button4Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Continuar
-                            ConnectUSBPageState.resumeTransaction();
-                            ConnectUSBPageState.sendDataToSTM(button4Text);
-                          },
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button5Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Calibrar
+                                ConnectUSBPageState.sendDataToSTM(button5Text);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button5Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Calibrar
-                            ConnectUSBPageState.sendDataToSTM(button5Text);
-                          },
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button6Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Detener
+                                ConnectUSBPageState.sendDataToSTM(button6Text);
+                                ConnectUSBPageState.pauseTransaction();
+                                MyAppState.generateSeries();
+                                ConnectUSBPageState.resetFunction();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 30),
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button7Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Reiniciar
+                                ConnectUSBPageState.sendDataToSTM(button7Text);
+                                MyAppState.generateSeries();
+                                ConnectUSBPageState.resetFunction();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button6Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Detener
-                            ConnectUSBPageState.sendDataToSTM(button6Text);
-                            ConnectUSBPageState.pauseTransaction();
-                            MyAppState.generateSeries();
-                            ConnectUSBPageState.resetFunction();
-                          },
-                        ),
-                      ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button7Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Reiniciar
-                            ConnectUSBPageState.sendDataToSTM(button7Text);
-                            MyAppState.generateSeries();
-                            ConnectUSBPageState.resetFunction();
-                          },
-                        ),
-                      ),
-                      ButtonTheme(
-                        minWidth: buttonWidth,
-                        padding: EdgeInsets.all(buttonPadding),
-                        child: RaisedButton(
-                          color: MyAppState.buttonBackgroundColor,
-                          elevation: buttonElevation,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: Text(button8Text, 
-                            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                          onPressed: () 
-                          {
-                            // Ambu
-                            ConnectUSBPageState.sendDataToSTM(button8Text);
-                          },
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ButtonTheme(
+                            minWidth: buttonWidth,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: RaisedButton(
+                              color: MyAppState.buttonBackgroundColor,
+                              elevation: buttonElevation,
+                              padding: EdgeInsets.all(buttonPadding),
+                              child: Text(button8Text, 
+                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              onPressed: () 
+                              {
+                                // Ambu
+                                ConnectUSBPageState.sendDataToSTM(button8Text);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   )

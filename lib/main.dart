@@ -24,18 +24,20 @@ class MyAppState extends State<MyApp> {
 
   // Art style
   static const double buttonTextSize = 20;
-  static const Color buttonBackgroundColor = Colors.amber;
-  static const Color buttonTextColor = Colors.amberAccent;
-  static Color canvasColor = Colors.amber[100];
+  static const Color buttonBackgroundColor = Colors.brown;
+  static const Color buttonTextColor = Colors.white;
+  static Color canvasColor = Colors.brown[100];
   static const double leftValuesTitleTextSize = 20;
   static const double leftValuesTextSize = 30;
-  static Color leftValuesBackgroundColor = Colors.amber[100];
-  static Color leftValuesTextColor = Colors.amber[900];
-  static Color graphColor = Colors.amber[600];
-  static Color graphBackgroundColor = Colors.amber[100];
-  static Color graphGridColor = Colors.amber[900];
-  static const String appTitle = "How to love a porcupine";
-  static Color appTitleColor = Colors.amber[800];
+  static Color leftValuesBackgroundColor = Colors.brown[100];
+  static Color leftValuesTextColor = Colors.brown[900];
+  static Color graphColor = Colors.brown[600];
+  static Color graphBackgroundColor = Colors.brown[100];
+  static Color graphGridColor = Colors.brown[900];
+  static const String appTitle = "East of Eden";
+  static Color appTitleColor = Colors.brown[800];
+  static TextTheme textTheme = GoogleFonts.indieFlowerTextTheme();
+  static TextStyle titleTextStyle = GoogleFonts.nunito();
 
   // Graph values
   static const int graphLength = 1500;
@@ -49,10 +51,10 @@ class MyAppState extends State<MyApp> {
   static MyStackedAreaChart stackedAreaChart3;
 
   // Display values
-  static const String value1Title = "Pets";
-  static const String value2Title = "Feeds";
-  static const String value3Title = "Waters";
-  static const String value4Title = "Loves";
+  static const String value1Title = "North";
+  static const String value2Title = "South";
+  static const String value3Title = "East";
+  static const String value4Title = "West";
   static String value1 = "0";
   static String value2 = "0";
   static String value3 = "0";
@@ -170,18 +172,17 @@ class MyAppState extends State<MyApp> {
       stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
     }
   }
-  
+
   @override 
   Widget build(BuildContext context) {
     return MaterialApp (
-      title: appTitle,
       theme: ThemeData(
-        textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
+        textTheme: textTheme,
         primaryColor: appTitleColor,
         canvasColor: canvasColor,
         dividerTheme: DividerThemeData(
           space: 15,
-        )
+        ),
       ),
       home: ConnectUSBPage(),
     );
