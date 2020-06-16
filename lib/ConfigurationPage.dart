@@ -24,29 +24,44 @@ class ConfigurationPage extends StatelessWidget {
   static TextEditingController param1Text = new TextEditingController();
   static TextEditingController param2Text = new TextEditingController();
   static TextEditingController param3Text = new TextEditingController();
-  static String param1DecorationText = 'Parameter 1';
-  static String param2DecorationText = 'Parameter 2';
-  static String param3DecorationText = 'Parameter 3';
+  static String param1DecorationText = 'Parameter 1 (current: ' + param1.toString() + ')';
+  static String param2DecorationText = 'Parameter 2 (current: ' + param2.toString() + ')';
+  static String param3DecorationText = 'Parameter 3 (current: ' + param3.toString() + ')';
   
   static TextEditingController k1Text = new TextEditingController();
   static TextEditingController k2Text = new TextEditingController();
   static TextEditingController k3Text = new TextEditingController();
-  static String k1DecorationText = 'Kx';
-  static String k2DecorationText = 'Kp';
-  static String k3DecorationText = 'Kv';
+  static String k1DecorationText = 'Kx (current: ' + k1.toString() + ')';
+  static String k2DecorationText = 'Kp (current: ' + k2.toString() + ')';
+  static String k3DecorationText = 'Kv (current: ' + k3.toString() + ')';
 
-  void adjustParameters() {
-    if (param1Text.text != "") {
-      param1DecorationText = "Parameter 1 (current: " + param1Text.text + ")";
-      ConnectUSBPageState.changeParam(1, double.tryParse(param1Text.text));
+  static double param1, param2, param3;
+  static double k1, k2, k3;
+
+  void adjustParametersMethod() {
+    if (!ConnectUSBPageState.connectedToSTM()) {
+      if (param1Text.text != "") {
+        param1DecorationText = "Parameter 1 (current: " + param1Text.text + ")";
+        param1 = double.tryParse(param1Text.text) == null ? param1 : double.tryParse(param1Text.text);
+        ConnectUSBPageState.changeParam(1, param1);
+      }
+      if (param2Text.text != "") {
+        param2DecorationText = "Parameter 2 (current: " + param2Text.text + ")";
+        param2 = double.tryParse(param2Text.text) == null ? param2 : double.tryParse(param2Text.text);
+        ConnectUSBPageState.changeParam(2, param2);
+      }
+      if (param3Text.text != "") {
+        param3DecorationText = "Parameter 3 (current: " + param3Text.text + ")";
+        param3 = double.tryParse(param3Text.text) == null ? param3 : double.tryParse(param3Text.text);
+        ConnectUSBPageState.changeParam(3, param3);
+      }
     }
-    if (param2Text.text != "") {
-      param2DecorationText = "Parameter 2 (current: " + param2Text.text + ")";
-      ConnectUSBPageState.changeParam(2, double.tryParse(param2Text.text));
-    }
-    if (param3Text.text != "") {
-      param3DecorationText = "Parameter 3 (current: " + param3Text.text + ")";
-      ConnectUSBPageState.changeParam(3, double.tryParse(param3Text.text));
+    else {
+      ConnectUSBPageState.sendParamsToSTM(
+        param1Text.text == "" ? param1 : param1Text.text, 
+        param2Text.text == "" ? param2 : param2Text.text, 
+        param3Text.text == "" ? param3 : param3Text.text, 
+      );
     }
     
     param1Text.text = "";
@@ -54,24 +69,89 @@ class ConfigurationPage extends StatelessWidget {
     param3Text.text = "";
   }
 
-  static void adjustK() {
-
-    if (k1Text.text != "") {
-      k1DecorationText = "Kx (current: " + k1Text.text + ")";
-      ConnectUSBPageState.changeK(1, double.tryParse(k1Text.text));
+  void adjustKMethod() {
+    if (!ConnectUSBPageState.connectedToSTM()) {
+      if (k1Text.text != "") {
+        k1DecorationText = "Kx (current: " + k1Text.text + ")";
+        k1 = double.tryParse(k1Text.text) == null ? k1 : double.tryParse(k1Text.text);
+        ConnectUSBPageState.changeK(1, k1);
+      }
+      if (k2Text.text != "") {
+        k2DecorationText = "Kp (current: " + k2Text.text + ")";
+        k2 = double.tryParse(k2Text.text) == null ? k2 : double.tryParse(k2Text.text);
+        ConnectUSBPageState.changeK(2, k2);
+      }
+      if (k3Text.text != "") {
+        k3DecorationText = "Kv (current: " + k3Text.text + ")";
+        k3 = double.tryParse(k3Text.text) == null ? k3 : double.tryParse(k3Text.text);
+        ConnectUSBPageState.changeK(3, k3);
+      }
     }
-    if (k2Text.text != "") {
-      k2DecorationText = "Kp (current: " + k2Text.text + ")";
-      ConnectUSBPageState.changeK(2, double.tryParse(k2Text.text));
-    }
-    if (k3Text.text != "") {
-      k3DecorationText = "Kv (current: " + k3Text.text + ")";
-      ConnectUSBPageState.changeK(3, double.tryParse(k3Text.text));
+    else {
+      ConnectUSBPageState.sendKValToSTM(
+        k1Text.text == "" ? k1 : k1Text.text, 
+        k2Text.text == "" ? k2 : k2Text.text, 
+        k3Text.text == "" ? k3 : k3Text.text, 
+      );
     }
     
     k1Text.text = "";
     k2Text.text = "";
     k3Text.text = "";
+  }
+
+  void pauseMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.pauseIdentifier);
+    }
+    else {
+
+    }
+  }
+
+  void resumeMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.resumeIdentifier);
+    } 
+    else {
+      
+    }
+  }
+
+  void calibrateMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.calibrateIdentifier);
+    }
+    else {
+
+    }
+  }
+
+  void stopMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.stopIdentifier);
+    } 
+    else {
+
+    }
+  }
+
+  void restartMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.restartIdentifier);
+    }
+    else {
+
+    }
+  }
+
+  void ambuMethod() {
+    if (ConnectUSBPageState.connectedToSTM()) {
+      ConnectUSBPageState.sendDataToSTM(MyAppState.ambuIdentifier);
+    }
+    else {
+
+    }
   }
 
   Row returnButtonRow(BuildContext context) {
@@ -194,8 +274,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () async
                               {
                                 // Parametros
-                                ConnectUSBPageState.sendDataToSTM(button1Text);
-                                adjustParameters();
+                                adjustParametersMethod();
                               },
                             ),
                           ),
@@ -221,8 +300,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () async
                               {
                                 // K (x, kp, kv)
-                                ConnectUSBPageState.sendDataToSTM(button2Text);
-                                adjustK();
+                                adjustKMethod();
                               },
                             ),
                           ),
@@ -249,8 +327,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Pausa
-                                ConnectUSBPageState.pauseTransaction();
-                                ConnectUSBPageState.sendDataToSTM(button3Text);
+                                pauseMethod();
                               },
                             ),
                           ),
@@ -267,8 +344,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Continuar
-                                ConnectUSBPageState.resumeTransaction();
-                                ConnectUSBPageState.sendDataToSTM(button4Text);
+                                resumeMethod();
                               },
                             ),
                           ),
@@ -289,7 +365,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Calibrar
-                                ConnectUSBPageState.sendDataToSTM(button5Text);
+                                calibrateMethod();
                               },
                             ),
                           ),
@@ -310,10 +386,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Detener
-                                ConnectUSBPageState.sendDataToSTM(button6Text);
-                                ConnectUSBPageState.pauseTransaction();
-                                MyAppState.generateSeries();
-                                ConnectUSBPageState.resetFunction();
+                                stopMethod();
                               },
                             ),
                           ),
@@ -330,9 +403,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Reiniciar
-                                ConnectUSBPageState.sendDataToSTM(button7Text);
-                                MyAppState.generateSeries();
-                                ConnectUSBPageState.resetFunction();
+                                restartMethod();
                               },
                             ),
                           ),
@@ -353,7 +424,7 @@ class ConfigurationPage extends StatelessWidget {
                               onPressed: () 
                               {
                                 // Ambu
-                                ConnectUSBPageState.sendDataToSTM(button8Text);
+                                ambuMethod();
                               },
                             ),
                           ),

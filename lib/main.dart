@@ -40,7 +40,7 @@ class MyAppState extends State<MyApp> {
   static TextStyle titleTextStyle = GoogleFonts.nunito();
 
   // Graph values
-  static const int graphLength = 1500;
+  static const int graphLength = 200;
   static double currentGraphPosition = 0;
   static double xPosition = 0;
   static List<MyStackedAreaSeries> stackedAreaSeries1;
@@ -74,6 +74,16 @@ class MyAppState extends State<MyApp> {
   static const String graph2Identifier = 'gdos';
   static const String graph3Identifier = 'gtres';
   static const String xIdentifier = 'xxx';
+
+  // identifiers for when the data is transmited to STM32
+  static const String pauseIdentifier = 'Pausa';
+  static const String resumeIdentifier = 'Continuar';
+  static const String calibrateIdentifier = 'Calibrar';
+  static const String stopIdentifier = 'Detener';
+  static const String restartIdentifier = 'Reiniciar';
+  static const String paramIdentifier = 'Parametros';
+  static const String kIdentifier = 'Kval';
+  static const String ambuIdentifier = 'Ambu';
 
   static Timer refreshScreenTimer;
   static int screenRefreshRate = (100).round(); // 30 Hz in milliseconds

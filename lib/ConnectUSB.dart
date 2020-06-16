@@ -31,6 +31,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   TextEditingController _textController = TextEditingController();
 
   Future<bool> _connectTo(device) async {
+    
     _serialData.clear();
 
     if (_subscription != null) {
@@ -114,13 +115,20 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
 
     _getPorts();
 
-    testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
+    //testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
 
     // Force the orientation to be landscape 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+
+    ConfigurationPage.param1 = graph1Freq;
+    ConfigurationPage.param2 = graph2Freq;
+    ConfigurationPage.param3 = graph3Amplitude;
+    ConfigurationPage.k1 = k1Amplitude;
+    ConfigurationPage.k2 = k2Amplitude;
+    ConfigurationPage.k3 = k3Amplitude;
   }
 
   static int timerRate = 15;
@@ -131,6 +139,9 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   static double graph1Freq = 2.7;
   static double graph2Freq = 4.8;
   static double graph3Amplitude = 2;
+  static double k1Amplitude = 5;
+  static double k2Amplitude = 1;
+  static double k3Amplitude = 3;
   static List<Widget> textWidgets = new List<Widget>();
   static void testFunc(Timer timer) {
     textSample = "";
@@ -143,10 +154,10 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     double graphVariable1 = math.sin(graph1Freq * counter/100);
     double graphVariable2 = math.sin(graph2Freq * counter/100);
     double graphVariable3 = (graphVariable1 + graphVariable2) * graph3Amplitude;
-    double rand1 = 5 * (1 + math.Random().nextInt(10) / 100);
-    double rand2 = 1 * (1 + math.Random().nextInt(10) / 100);
-    double rand3 = 3 * (1 + math.Random().nextInt(10) / 100);
-    double rand4 = 7 * (1 + math.Random().nextInt(10) / 100);
+    double rand1 = k1Amplitude * (1 + math.Random().nextInt(10) / 100);
+    double rand2 = k2Amplitude * (1 + math.Random().nextInt(10) / 100);
+    double rand3 = k3Amplitude * (1 + math.Random().nextInt(10) / 100);
+    double rand4 = rand1 + rand2 + rand3;
 
     textSample = "DATATOGRAPH: ";
     textSample += MyAppState.value1Identifier + rand1.toString();
@@ -259,10 +270,12 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       ],
     );
   }
-
+  
+  static String lastTextSent = '';
   static void sendDataToSTM(String data) async {
     if (_port != null) {
       await _port.write(Uint8List.fromList((data + '\r\n').codeUnits));
+      lastTextSent = data + '\r\n';
     }
   }
 
@@ -379,12 +392,14 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   static void pauseTransaction() {
     if (testTimer.isActive) {
       testTimer.cancel();
+      sendDataToSTM(MyAppState.pauseIdentifier);
     }
   }
 
   static void resumeTransaction() {
     if (!testTimer.isActive) {
       testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
+      sendDataToSTM(MyAppState.resumeIdentifier);
     }
   }
 
@@ -411,16 +426,24 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   static void changeK(int param, double value) {
     switch (param) {
       case 1:
-        graph1Freq = value;
+        k1Amplitude = value;
         break;
       case 2:
-        graph2Freq = value;
+        k2Amplitude = value;
         break;
       case 3:
-        graph3Amplitude = value;
+        k3Amplitude = value;
         break;
       default:
     }
+  }
+
+  static void sendParamsToSTM(String param1, String param2, String param3) {
+    sendDataToSTM(MyAppState.paramIdentifier + " " + param1 + " " + param2 + " " + param3);
+  }
+
+  static void sendKValToSTM(String k1, String k2, String k3) {
+    sendDataToSTM(MyAppState.kIdentifier + " " + k1 + " " + k2 + " " + k3);
   }
 
   static bool connectedToSTM() {
@@ -475,7 +498,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                   ),
                 ),
                 Text("Result Data", style: Theme.of(context).textTheme.headline),
-                ...?_serialData
+                ...?_serialData,
+                Text(lastTextSent),
                 // Use this to see raw data from USB
                 //...?_serialData,
 
