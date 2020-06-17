@@ -34,7 +34,7 @@ class MyAppState extends State<MyApp> {
   static Color graphColor = Colors.brown[600];
   static Color graphBackgroundColor = Colors.brown[100];
   static Color graphGridColor = Colors.brown[900];
-  static const String appTitle = "East of Eden";
+  static const String appTitle = "Ventilador UTP";
   static Color appTitleColor = Colors.brown[800];
   static TextTheme textTheme = GoogleFonts.indieFlowerTextTheme();
   static TextStyle titleTextStyle = GoogleFonts.nunito();
@@ -51,10 +51,10 @@ class MyAppState extends State<MyApp> {
   static MyStackedAreaChart stackedAreaChart3;
 
   // Display values
-  static const String value1Title = "North";
-  static const String value2Title = "South";
-  static const String value3Title = "East";
-  static const String value4Title = "West";
+  static const String value1Title = "Volumen in";
+  static const String value2Title = "Volumen exp";
+  static const String value3Title = "PIP";
+  static const String value4Title = "PEEP";
   static String value1 = "0";
   static String value2 = "0";
   static String value3 = "0";
@@ -76,14 +76,14 @@ class MyAppState extends State<MyApp> {
   static const String xIdentifier = 'xxx';
 
   // identifiers for when the data is transmited to STM32
-  static const String pauseIdentifier = 'Pausa';
-  static const String resumeIdentifier = 'Continuar';
-  static const String calibrateIdentifier = 'Calibrar';
-  static const String stopIdentifier = 'Detener';
+  static const String pauseIdentifier = 'PAUSE';
+  static const String resumeIdentifier = 'RESUME';
+  static const String calibrateIdentifier = 'CAL';
+  static const String stopIdentifier = 'STOP';
   static const String restartIdentifier = 'Reiniciar';
-  static const String paramIdentifier = 'Parametros';
+  static const String paramIdentifier = 'PARAMS';
   static const String kIdentifier = 'Kval';
-  static const String ambuIdentifier = 'Ambu';
+  static const String ambuIdentifier = 'PLOT';
 
   static Timer refreshScreenTimer;
   static int screenRefreshRate = (100).round(); // 30 Hz in milliseconds
@@ -151,6 +151,31 @@ class MyAppState extends State<MyApp> {
   }
 
   static void getDataFromUSBToGraph(double xValue, double yValue, List<MyStackedAreaSeries> series) {
+    int index = null;
+    for (var i = 0; i < series.length; i++) {
+      if (series[i].xValue == null) {
+        index = i;
+        break;
+      }
+      if (series[i].xValue > xValue) {
+        index = i;
+        break;
+      }
+    }
+    if (index == null) {
+      series.add(new MyStackedAreaSeries(xValue: xValue, yValue: yValue));
+    }
+    else {
+      // Set the current point to the data
+      series[index].xValue = xValue;
+      series[index].yValue = yValue;
+
+      if (index < graphLength) {
+        series[index + 1].xValue = xValue;
+        series[index + 1].yValue = null;
+      }
+    }
+/*
     // Set the current point to the data
     series[currentGraphPosition.round()].xValue = xValue;
     series[currentGraphPosition.round()].yValue = yValue;
@@ -158,7 +183,7 @@ class MyAppState extends State<MyApp> {
     if (currentGraphPosition.round() < graphLength) {
       series[currentGraphPosition.round() + 1].xValue = xValue;
       series[currentGraphPosition.round() + 1].yValue = null;
-    }
+    }*/
   }
 
   static void generateSeries() {
@@ -171,7 +196,7 @@ class MyAppState extends State<MyApp> {
     // position as the current data
     for (int i = 0; i <= graphLength; i++) {
         // To avoid the graph displaying an x axis 1 higher than the graph length
-        if (i == graphLength) {
+        /*if (i == graphLength) {
           stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
           stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
           stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
@@ -179,7 +204,10 @@ class MyAppState extends State<MyApp> {
         }
       stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
       stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
-      stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
+      stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));*/
+      stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
+      stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
+      stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
     }
   }
 

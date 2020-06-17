@@ -145,9 +145,54 @@ class DisplayPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center, 
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
                     children: <Widget>[
-                      Expanded(flex: 1, child: (MyAppState.stackedAreaSeries1.length == 0 || MyAppState.stackedAreaChart1 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart1),
-                      Expanded(flex: 1, child: (MyAppState.stackedAreaSeries2.length == 0 || MyAppState.stackedAreaChart2 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart2),
-                      Expanded(flex: 1, child: (MyAppState.stackedAreaSeries3.length == 0 || MyAppState.stackedAreaChart3 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart3),
+                      Expanded(
+                        flex: 1, 
+                        child: Container(
+                          child: GestureDetector(
+                            child: (MyAppState.stackedAreaSeries1.length == 0 || MyAppState.stackedAreaChart1 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart1,
+                            onTap: ()
+                            {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(
+                                  builder: (context) => Graph1Page()));
+                            },
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1, 
+                        child: Container(
+                          child: GestureDetector(
+                            child: (MyAppState.stackedAreaSeries2.length == 0 || MyAppState.stackedAreaChart2 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart2,
+                            onTap: ()
+                            {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(
+                                  builder: (context) => Graph2Page()));
+                            },
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1, 
+                        child: Container(
+                          child: GestureDetector(
+                            child: (MyAppState.stackedAreaSeries3.length == 0 || MyAppState.stackedAreaChart3 == null) ? Text("Error graficando") : MyAppState.stackedAreaChart3,
+                            onTap: ()
+                            {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(
+                                  builder: (context) => Graph3Page()));
+                            },
+                          ),
+                        ),
+                      ),
                     ],
                   )
                   ),

@@ -39,6 +39,8 @@ class ConfigurationPage extends StatelessWidget {
   static double k1, k2, k3;
 
   void adjustParametersMethod() {
+    MyAppState.generateSeries();
+
     if (!ConnectUSBPageState.connectedToSTM()) {
       if (param1Text.text != "") {
         param1DecorationText = "Parameter 1 (current: " + param1Text.text + ")";
@@ -57,6 +59,12 @@ class ConfigurationPage extends StatelessWidget {
       }
     }
     else {
+      String text1 = param1Text.text == "" ? param1 : param1Text.text;
+      String text2 = param2Text.text == "" ? param2 : param2Text.text;
+      String text3 = param3Text.text == "" ? param3 : param3Text.text;
+      param1DecorationText = "Parameter 1 (current: " + text1 + ")";
+      param2DecorationText = "Parameter 2 (current: " + text2 + ")";
+      param3DecorationText = "Parameter 3 (current: " + text3 + ")";
       ConnectUSBPageState.sendParamsToSTM(
         param1Text.text == "" ? param1 : param1Text.text, 
         param2Text.text == "" ? param2 : param2Text.text, 
@@ -70,6 +78,8 @@ class ConfigurationPage extends StatelessWidget {
   }
 
   void adjustKMethod() {
+    MyAppState.generateSeries();
+    
     if (!ConnectUSBPageState.connectedToSTM()) {
       if (k1Text.text != "") {
         k1DecorationText = "Kx (current: " + k1Text.text + ")";
@@ -88,6 +98,12 @@ class ConfigurationPage extends StatelessWidget {
       }
     }
     else {
+      String text1 = k1Text.text == "" ? k1 : k1Text.text;
+      String text2 = k2Text.text == "" ? k2 : k2Text.text;
+      String text3 = k3Text.text == "" ? k3 : k3Text.text;
+      k1DecorationText = "Kx (current: " + text1 + ")";
+      k2DecorationText = "Kp (current: " + text2 + ")";
+      k3DecorationText = "Kv (current: " + text3 + ")";
       ConnectUSBPageState.sendKValToSTM(
         k1Text.text == "" ? k1 : k1Text.text, 
         k2Text.text == "" ? k2 : k2Text.text, 
@@ -114,7 +130,7 @@ class ConfigurationPage extends StatelessWidget {
       ConnectUSBPageState.sendDataToSTM(MyAppState.resumeIdentifier);
     } 
     else {
-      
+
     }
   }
 
@@ -130,6 +146,7 @@ class ConfigurationPage extends StatelessWidget {
   void stopMethod() {
     if (ConnectUSBPageState.connectedToSTM()) {
       ConnectUSBPageState.sendDataToSTM(MyAppState.stopIdentifier);
+      MyAppState.generateSeries();
     } 
     else {
 
@@ -139,6 +156,7 @@ class ConfigurationPage extends StatelessWidget {
   void restartMethod() {
     if (ConnectUSBPageState.connectedToSTM()) {
       ConnectUSBPageState.sendDataToSTM(MyAppState.restartIdentifier);
+      MyAppState.generateSeries();
     }
     else {
 

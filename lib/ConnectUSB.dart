@@ -278,7 +278,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       lastTextSent = data + '\r\n';
     }
   }
-
+  
   static void parseDataFromUSB(String data) {
     String myData = "";
     if (data.contains(MyAppState.receivingValuesIdentifier)) {
@@ -302,6 +302,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       else {
         //ERROR
       }
+      
       myData += data + '\r\n';
       // extract number by number as long as there are commas
       while (data.contains(',')) {
