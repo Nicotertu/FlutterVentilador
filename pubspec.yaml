@@ -29,6 +29,9 @@ dependencies:
   wakelock: ^0.1.4+1
   google_fonts: ^1.1.0
   mp_chart: ^0.2.1
+  fl_chart: ^0.10.0
+  syncfusion_flutter_charts: ^18.1.56
+
 
 
   # The following adds the Cupertino Icons font to your application.

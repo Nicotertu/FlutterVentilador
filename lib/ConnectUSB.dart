@@ -1,9 +1,12 @@
+import 'dart:math';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:usb_serial/transaction.dart';
+import 'myChart_mpCharts.dart';
 import 'ConfigurationPage.dart';
 import 'DisplayValuesPage.dart';
 import 'Graph1.dart';
@@ -129,7 +132,26 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     ConfigurationPage.k1 = k1Amplitude;
     ConfigurationPage.k2 = k2Amplitude;
     ConfigurationPage.k3 = k3Amplitude;
+
+    for (double i = 0; i < length; i++) {
+      newData.add(FlSpot(i,(Random().nextDouble())*60));    
+    }
+    newTimer = Timer.periodic(Duration(microseconds: 0), newTestFunc);
   }
+
+  static Timer newTimer;
+  static int newCounter = 0;
+  static int length = 2000;
+  void newTestFunc(Timer timer) {
+    setState(() {
+      newData[(newCounter % length)] = new FlSpot((newCounter%length).toDouble(), math.sin(newCounter / 100));
+    });
+      newCounter++;
+      if (newCounter >= newData.length) {
+        //newCounter = 0;
+      }
+  }
+
 
   static int timerRate = 15;
   static Timer testTimer;
@@ -451,6 +473,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     return _port != null;
   }
 
+  static List<FlSpot> newData = new List<FlSpot>();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -501,6 +525,13 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                 Text("Result Data", style: Theme.of(context).textTheme.headline),
                 ...?_serialData,
                 Text(lastTextSent),
+                MyLineChart(
+                  maxY: 1,
+                  minY: -1,
+                  data: newData, 
+                  lineColor: Colors.deepPurple[400].withOpacity(1), 
+                  areaColor: Colors.deepPurple[300].withOpacity(0.85),
+                )
                 // Use this to see raw data from USB
                 //...?_serialData,
 

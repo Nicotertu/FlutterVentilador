@@ -138,7 +138,7 @@ class MyAppState extends State<MyApp> {
     generateSeries();
 
     // Invoke a repeating function that refreshes the screen to update values and graphs
-    refreshScreenTimer = Timer.periodic(Duration(milliseconds: screenRefreshRate), refreshScreen);
+    //refreshScreenTimer = Timer.periodic(Duration(milliseconds: screenRefreshRate), refreshScreen);
 
     // Disable screen being able to sleep
     Wakelock.enable();
@@ -191,20 +191,8 @@ class MyAppState extends State<MyApp> {
     stackedAreaSeries1 = new List<MyStackedAreaSeries>();
     stackedAreaSeries2 = new List<MyStackedAreaSeries>();
     stackedAreaSeries3 = new List<MyStackedAreaSeries>();
-    // initializing the graphs so that it doesn't scale when running for the first time
-    // the size is increased by one to allow space for an extra point that will always be 0 and at the same
-    // position as the current data
+
     for (int i = 0; i <= graphLength; i++) {
-        // To avoid the graph displaying an x axis 1 higher than the graph length
-        /*if (i == graphLength) {
-          stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
-          stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
-          stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: graphLength.toDouble(), yValue: null));
-          continue; 
-        }
-      stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
-      stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));
-      stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: i.toDouble(), yValue: null));*/
       stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
       stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
       stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
