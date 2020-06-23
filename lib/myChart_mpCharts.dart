@@ -8,6 +8,8 @@ class MyLineChart extends StatefulWidget {
   final double cutoffY;
   final double minY;
   final double maxY;
+  final double minX;
+  final double maxX;
   final double lineWidth;
   final Color lineColor;
   final Color areaColor;
@@ -18,6 +20,8 @@ class MyLineChart extends StatefulWidget {
     this.areaColor,
     this.minY = -10, 
     this.maxY = 10, 
+    this.minX = -10, 
+    this.maxX = 10, 
     this.lineWidth = 2,
     this.cutoffY = 0,
   });
@@ -35,45 +39,43 @@ class MyLineChartState extends State<MyLineChart> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 700,
-      height: 180,
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            drawHorizontalLine: true, 
-            drawVerticalLine: true),
-          minY: widget.minY,
-          maxY: widget.maxY,
-          lineTouchData: LineTouchData(enabled: false),
-          lineBarsData: [
-            LineChartBarData(
-              dotData: FlDotData(show: false),
-              isCurved: false,
-              barWidth: widget.lineWidth,
-              colors: [
-                widget.lineColor
-              ],
-              belowBarData: BarAreaData(
-                show: true,
-                colors: [widget.areaColor],
-                cutOffY: widget.cutoffY,
-                applyCutOffY: true,
-              ),
-              aboveBarData: BarAreaData(
-                show: true,
-                colors: [widget.areaColor],
-                cutOffY: widget.cutoffY,
-                applyCutOffY: true,
-              ),
-              spots: [
-                ...?widget.data
-              ]
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          drawHorizontalLine: true, 
+          drawVerticalLine: true),
+        minY: widget.minY,
+        maxY: widget.maxY,
+        minX: widget.minX,
+        maxX: widget.maxX,
+        lineTouchData: LineTouchData(enabled: false),
+        lineBarsData: [
+          LineChartBarData(
+            dotData: FlDotData(show: false),
+            isCurved: false,
+            barWidth: widget.lineWidth,
+            colors: [
+              widget.lineColor
+            ],
+            belowBarData: BarAreaData(
+              show: true,
+              colors: [widget.areaColor],
+              cutOffY: widget.cutoffY,
+              applyCutOffY: true,
             ),
-          ]
-        ),
-        swapAnimationDuration: Duration(milliseconds: 0)
-      )
+            aboveBarData: BarAreaData(
+              show: true,
+              colors: [widget.areaColor],
+              cutOffY: widget.cutoffY,
+              applyCutOffY: true,
+            ),
+            spots: [
+              ...?widget.data
+            ]
+          ),
+        ]
+      ),
+      swapAnimationDuration: Duration(milliseconds: 0)
     );
   }
 }

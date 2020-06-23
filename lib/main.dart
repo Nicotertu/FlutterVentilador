@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:math' as math;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'ConnectUSB.dart';
+import 'myChart_mpCharts.dart';
 import 'myCharts.dart';
 import 'mySeries.dart';
 import 'package:wakelock/wakelock.dart';
@@ -19,8 +23,8 @@ class MyAppState extends State<MyApp> {
   static const String button2Title = "Conectar USB";
   static const String button3Title = "Grafica 1";
   static const String button4Title = "Grafica 2";
-  static const String button5Title = "Grafica 3";
-  static const String button6Title = "Configuracion";
+  static const String button5Title = "Conf. Hospital";
+  static const String button6Title = "Conf. UTP";
 
   // Art style
   static const double buttonTextSize = 20;
@@ -32,7 +36,7 @@ class MyAppState extends State<MyApp> {
   static Color leftValuesBackgroundColor = Colors.brown[100];
   static Color leftValuesTextColor = Colors.brown[900];
   static Color graphColor = Colors.brown[600];
-  static Color graphBackgroundColor = Colors.brown[100];
+  static Color graphBackgroundColor = Colors.brown[300];
   static Color graphGridColor = Colors.brown[900];
   static const String appTitle = "Ventilador UTP";
   static Color appTitleColor = Colors.brown[800];
@@ -40,7 +44,7 @@ class MyAppState extends State<MyApp> {
   static TextStyle titleTextStyle = GoogleFonts.nunito();
 
   // Graph values
-  static const int graphLength = 200;
+  static const int graphLength = 100;
   static double currentGraphPosition = 0;
   static double xPosition = 0;
   static List<MyStackedAreaSeries> stackedAreaSeries1;
@@ -50,11 +54,30 @@ class MyAppState extends State<MyApp> {
   static MyStackedAreaChart stackedAreaChart2;
   static MyStackedAreaChart stackedAreaChart3;
 
+  static List<FlSpot> lineChart1Data;
+  static List<FlSpot> lineChart2Data;
+  static List<FlSpot> lineChart3Data;
+  static MyLineChart lineChart1;
+  static MyLineChart lineChart2;
+  static MyLineChart lineChart3;
+  static double minYgraph1 = -1;
+  static double maxYgraph1 = 1;
+  static double minYgraph2 = -1;
+  static double maxYgraph2 = 1;
+  static double minYgraph3 = -4;
+  static double maxYgraph3 = 4;
+  static double minXgraph1 = 0;
+  static double maxXgraph1 = 4000;
+  static double minXgraph2 = 0;
+  static double maxXgraph2 = 4000;
+  static double minXgraph3 = 0;
+  static double maxXgraph3 = 4000;
+  
   // Display values
-  static const String value1Title = "Volumen in";
-  static const String value2Title = "Volumen exp";
-  static const String value3Title = "PIP";
-  static const String value4Title = "PEEP";
+  static const String value1Title = "Vti (mL)";
+  static const String value2Title = "Vte (mL)";
+  static const String value3Title = "PIP (cmH2O)";
+  static const String value4Title = "PEEP (cmH2O)";
   static String value1 = "0";
   static String value2 = "0";
   static String value3 = "0";
@@ -86,13 +109,44 @@ class MyAppState extends State<MyApp> {
   static const String ambuIdentifier = 'PLOT';
 
   static Timer refreshScreenTimer;
-  static int screenRefreshRate = (100).round(); // 30 Hz in milliseconds
+  static int screenRefreshRate = (0).round(); // 30 Hz in milliseconds
   void refreshScreen(Timer timer) async {
     setState(() {
       value1 = currentValue1.toStringAsFixed(2);
       value2 = currentValue2.toStringAsFixed(2);
       value3 = currentValue3.toStringAsFixed(2);
       value4 = currentValue4.toStringAsFixed(2);
+      lineChart1 = MyLineChart(
+        data: lineChart1Data,
+        lineColor: graphColor,
+        lineWidth: 2,
+        areaColor: graphBackgroundColor,
+        minY: minYgraph1,
+        maxY: maxYgraph1,
+        minX: minXgraph1,
+        maxX: maxXgraph1,
+        cutoffY: 0,);
+      lineChart2 = MyLineChart(
+        data: lineChart2Data,
+        lineColor: graphColor,
+        lineWidth: 2,
+        areaColor: graphBackgroundColor,
+        minY: minYgraph2,
+        maxY: maxYgraph2,
+        minX: minXgraph2,
+        maxX: maxXgraph2,
+        cutoffY: 0,);
+      lineChart3 = MyLineChart(
+        data: lineChart3Data,
+        lineColor: graphColor,
+        lineWidth: 2,
+        areaColor: graphBackgroundColor,
+        minY: minYgraph3,
+        maxY: maxYgraph3,
+        minX: minXgraph3,
+        maxX: maxXgraph3,
+        cutoffY: 0,);
+      /*
       stackedAreaChart1 = MyStackedAreaChart(
         data: stackedAreaSeries1, 
         title: "", 
@@ -127,7 +181,7 @@ class MyAppState extends State<MyApp> {
         graphBackgroundColor: graphBackgroundColor,
         gridColor: graphGridColor,
         minAxis: -100,
-      );
+      );*/
     });
   }
 
@@ -138,7 +192,7 @@ class MyAppState extends State<MyApp> {
     generateSeries();
 
     // Invoke a repeating function that refreshes the screen to update values and graphs
-    //refreshScreenTimer = Timer.periodic(Duration(milliseconds: screenRefreshRate), refreshScreen);
+    refreshScreenTimer = Timer.periodic(Duration(milliseconds: screenRefreshRate), refreshScreen);
 
     // Disable screen being able to sleep
     Wakelock.enable();
@@ -150,53 +204,86 @@ class MyAppState extends State<MyApp> {
     refreshScreenTimer.cancel();
   }
 
-  static void getDataFromUSBToGraph(double xValue, double yValue, List<MyStackedAreaSeries> series) {
+  static int lastIndexModified1 = null;
+  static int lastIndexModified2 = null;
+  static int lastIndexModified3 = null;
+  
+  static void getDataFromUSBToGraph(double xValue, double yValue, List<FlSpot> series, int graph) {
     int index = null;
-    for (var i = 0; i < series.length; i++) {
-      if (series[i].xValue == null) {
+    for (int i = 0; i < series.length; i++) {
+      if (series[i].y == null) {
         index = i;
         break;
       }
-      if (series[i].xValue > xValue) {
+      if (series[i].x >= xValue) {
         index = i;
         break;
       }
     }
     if (index == null) {
-      series.add(new MyStackedAreaSeries(xValue: xValue, yValue: yValue));
+      series.add(new FlSpot(xValue, yValue));
+      lastIndexModified1 = series.length - 1;
+      lastIndexModified2 = series.length - 1;
+      lastIndexModified3 = series.length - 1;
     }
     else {
-      // Set the current point to the data
-      series[index].xValue = xValue;
-      series[index].yValue = yValue;
-
-      if (index < graphLength) {
-        series[index + 1].xValue = xValue;
-        series[index + 1].yValue = null;
+      switch (graph) {
+        case 1:
+          lastIndexModified1 = modifyGraph(xValue, yValue, series, index, lastIndexModified1);
+          break;
+        case 2:
+          lastIndexModified2 = modifyGraph(xValue, yValue, series, index, lastIndexModified2);
+          break;
+        case 3:
+          lastIndexModified3 = modifyGraph(xValue, yValue, series, index, lastIndexModified3);
+          break;
+        default:
       }
     }
-/*
-    // Set the current point to the data
-    series[currentGraphPosition.round()].xValue = xValue;
-    series[currentGraphPosition.round()].yValue = yValue;
+  }
 
-    if (currentGraphPosition.round() < graphLength) {
-      series[currentGraphPosition.round() + 1].xValue = xValue;
-      series[currentGraphPosition.round() + 1].yValue = null;
-    }*/
+  static int modifyGraph(double xValue, double yValue, List<FlSpot>series, int index, int lastIndex) {
+    if (lastIndex != null) {
+      if (index - lastIndex > 0) {
+        for (int i = 1; i < index - lastIndex; i++) {
+          series.removeAt(lastIndex + 1);
+        }
+        // Set the current point to the data
+        series[lastIndex + 1] = new FlSpot(xValue, yValue);
+        if (series.length > lastIndex + 2)
+          series[lastIndex + 2] = new FlSpot(xValue, null);
+        return lastIndex + 1;
+      }
+      else {
+        for (var i = lastIndex + 1; i < series.length; i++) {
+        }
+        series.removeRange(lastIndex + 1, series.length);
+        if (index > 0) {
+          series.removeRange(0, index);
+        }
+        series[0] = new FlSpot(xValue, yValue);
+        if (series.length > 1)
+          series[1] = new FlSpot(xValue, null);
+        return 0;
+      }
+    }
+    else {
+      series[index] = new FlSpot(xValue, yValue);
+      return index;
+    }
   }
 
   static void generateSeries() {
-    // create graph series in a fixed size to prevent resizing
-    stackedAreaSeries1 = new List<MyStackedAreaSeries>();
-    stackedAreaSeries2 = new List<MyStackedAreaSeries>();
-    stackedAreaSeries3 = new List<MyStackedAreaSeries>();
-
-    for (int i = 0; i <= graphLength; i++) {
-      stackedAreaSeries1.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
-      stackedAreaSeries2.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
-      stackedAreaSeries3.add(new MyStackedAreaSeries(xValue: 0, yValue: null));
+    lineChart1Data = new List<FlSpot>();
+    lineChart2Data = new List<FlSpot>();
+    lineChart3Data = new List<FlSpot>();
+    
+    for (double i = 0; i < graphLength; i++) {
+      lineChart1Data.add(FlSpot(i*10,null));
+      lineChart2Data.add(FlSpot(i*10,null)); 
+      lineChart3Data.add(FlSpot(i*10,null));
     }
+    return;
   }
 
   @override 

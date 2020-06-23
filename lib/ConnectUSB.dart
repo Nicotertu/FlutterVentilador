@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -65,8 +65,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     }
 
     _deviceId = device.deviceId;
-    await _port.setDTR(true);
-    await _port.setRTS(true);
+    //await _port.setDTR(true);
+    //await _port.setRTS(true);
     await _port.setPortParameters(
         115200, UsbPort.DATABITS_8, UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
 
@@ -74,11 +74,11 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         _port.inputStream, Uint8List.fromList([13, 10]));
 
     _subscription = _transaction.stream.listen((String line) {
-      parseDataFromUSB(line);
+      parseDataFromUSB(line);/*
       _serialData.add(Text(line));
       if (_serialData.length > 2) {
         _serialData.removeAt(0);
-      }
+      }*/
     });
     _status = "Connected";
     return true;
@@ -108,6 +108,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     print(_ports);
   }
 
+  static int millis = 0;
   @override
   void initState() {
     super.initState();
@@ -118,7 +119,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
 
     _getPorts();
 
-    //testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
+    testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
 
     // Force the orientation to be landscape 
     SystemChrome.setPreferredOrientations([
@@ -133,31 +134,13 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     ConfigurationPage.k2 = k2Amplitude;
     ConfigurationPage.k3 = k3Amplitude;
 
-    for (double i = 0; i < length; i++) {
-      newData.add(FlSpot(i,(Random().nextDouble())*60));    
-    }
-    newTimer = Timer.periodic(Duration(microseconds: 0), newTestFunc);
+    millis = DateTime.now().hour * 3600000 + DateTime.now().minute * 60000 + DateTime.now().second * 1000 + DateTime.now().millisecond;
   }
-
-  static Timer newTimer;
-  static int newCounter = 0;
-  static int length = 2000;
-  void newTestFunc(Timer timer) {
-    setState(() {
-      newData[(newCounter % length)] = new FlSpot((newCounter%length).toDouble(), math.sin(newCounter / 100));
-    });
-      newCounter++;
-      if (newCounter >= newData.length) {
-        //newCounter = 0;
-      }
-  }
-
 
   static int timerRate = 15;
   static Timer testTimer;
   static int counter = 0;
   static double counterr = 0;
-  static String textSample;
   static double graph1Freq = 2.7;
   static double graph2Freq = 4.8;
   static double graph3Amplitude = 2;
@@ -165,46 +148,58 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   static double k2Amplitude = 1;
   static double k3Amplitude = 3;
   static List<Widget> textWidgets = new List<Widget>();
+
+  static int arrayLength = 1;
+  static List<double> graphVariable1 = new List(arrayLength);
+  static List<double> graphVariable2 = new List(arrayLength);
+  static List<double> graphVariable3 = new List(arrayLength);
+  static List<double> rand1 = new List(arrayLength);
+  static List<double> rand2 = new List(arrayLength);
+  static List<double> rand3 = new List(arrayLength);
+  static List<double> rand4 = new List(arrayLength);
+  static List<String> textSample = new List(arrayLength);
   static void testFunc(Timer timer) {
-    textSample = "";
+    textSample[counterr.toInt()] = "";
     textWidgets.clear();
     counter++;
     textWidgets.add(Text("aaa,123456\r\n"));
-    textWidgets.add(Text("DATA,123456\r\n"));
-    textWidgets.add(Text("TOGRAPH: 123456\r\n"));
 
-    double graphVariable1 = math.sin(graph1Freq * counter/100);
-    double graphVariable2 = math.sin(graph2Freq * counter/100);
-    double graphVariable3 = (graphVariable1 + graphVariable2) * graph3Amplitude;
-    double rand1 = k1Amplitude * (1 + math.Random().nextInt(10) / 100);
-    double rand2 = k2Amplitude * (1 + math.Random().nextInt(10) / 100);
-    double rand3 = k3Amplitude * (1 + math.Random().nextInt(10) / 100);
-    double rand4 = rand1 + rand2 + rand3;
+    graphVariable1[counterr.toInt()] = math.sin(graph1Freq * counter/100);
+    graphVariable2[counterr.toInt()] = math.sin(graph2Freq * counter/100);
+    graphVariable3[counterr.toInt()] = (graphVariable1[counterr.toInt()] + graphVariable2[counterr.toInt()]) * graph3Amplitude;
+    rand1[counterr.toInt()] = k1Amplitude * (1 + math.Random().nextInt(10) / 100);
+    rand2[counterr.toInt()] = k2Amplitude * (1 + math.Random().nextInt(10) / 100);
+    rand3[counterr.toInt()] = k3Amplitude * (1 + math.Random().nextInt(10) / 100);
+    rand4[counterr.toInt()] = rand1[counterr.toInt()] + rand2[counterr.toInt()] + rand3[counterr.toInt()];
 
-    textSample = "DATATOGRAPH: ";
-    textSample += MyAppState.value1Identifier + rand1.toString();
-    textSample += ",";
-    textSample += MyAppState.value2Identifier + rand2.toString();
-    textSample += ",";
-    textSample += MyAppState.value3Identifier + rand3.toString();
-    textSample += ",";
-    textSample += MyAppState.value4Identifier + rand4.toString();
-    textSample += ",";
-    textSample += MyAppState.graph1Identifier + graphVariable1.toString();
-    textSample += ",";
-    textSample += MyAppState.graph2Identifier + graphVariable2.toString();
-    textSample += ",";
-    textSample += MyAppState.graph3Identifier + graphVariable3.toString();
-    textSample += ",";
-    textSample += MyAppState.xIdentifier + (counterr*5).toString();
-    textSample += ",";
-    textSample += "\r\n";
+    textSample[counterr.toInt()] = "DATATOGRAPH: ";
+    textSample[counterr.toInt()] += MyAppState.value1Identifier + rand1[counterr.toInt()].toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.value2Identifier + rand2[counterr.toInt()].toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.value3Identifier + rand3[counterr.toInt()].toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.value4Identifier + rand4[counterr.toInt()].toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.graph1Identifier + graphVariable1[counterr.toInt()].toStringAsFixed(4);
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.graph2Identifier + graphVariable2[counterr.toInt()].toStringAsFixed(4);
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.graph3Identifier + graphVariable3[counterr.toInt()].toStringAsFixed(4);
+    textSample[counterr.toInt()] += ",";
+    int currMillis = -millis + (DateTime.now().hour * 3600000 + DateTime.now().minute * 60000 + DateTime.now().second * 1000 + DateTime.now().millisecond);
+    textSample[counterr.toInt()] += MyAppState.xIdentifier + (currMillis%(4000)).toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += "\r\n";
 
-    textWidgets[0] = (Text(textSample));
-    parseDataFromUSB(textSample);
+    textWidgets[0] = (Text(textSample[counterr.toInt()]));
     counterr++;
-    if (counterr > MyAppState.graphLength)
+    if (counterr >= arrayLength) {
       counterr = 0;
+      for (var i = 0; i < textSample.length; i++) { 
+        parseDataFromUSB(textSample[i]);
+      }
+    }
   }
 
   @override
@@ -242,39 +237,21 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
           child: Text(MyAppState.button3Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            //Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph1Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
           child: Text(MyAppState.button4Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            //Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph2Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
           child: Text(MyAppState.button5Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            //Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph3Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
@@ -306,7 +283,6 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     if (data.contains(MyAppState.receivingValuesIdentifier)) {
       // remove datatograph initializer
       data = data.replaceAll(new RegExp(MyAppState.receivingValuesIdentifier), '');
-
       // get the data position first
       double position = 0;
       if (data.contains(MyAppState.xIdentifier)) {
@@ -317,7 +293,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         // get the index of the next comma
         int commaIndex = numberString.indexOf(',');
         // remove everything after the comma (included)
-        numberString = numberString.substring(0, commaIndex - 1);
+        numberString = numberString.substring(0, commaIndex);
         // transform into double
         position = double.tryParse(numberString);
       }
@@ -351,21 +327,24 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries1);
+      //MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries1);
+      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.lineChart1Data, 1);
     }
     else if (numberString.contains(MyAppState.graph2Identifier)) {
       double number = myParse(numberString, MyAppState.graph2Identifier);
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries2);
+      //MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries2);
+      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.lineChart2Data, 2);
     }
     else if (numberString.contains(MyAppState.graph3Identifier)) {
       double number = myParse(numberString, MyAppState.graph3Identifier);
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries3);
+      //MyAppState.getDataFromUSBToGraph(position, number, MyAppState.stackedAreaSeries3);
+      MyAppState.getDataFromUSBToGraph(position, number, MyAppState.lineChart3Data, 3);
     }
     else if (numberString.contains(MyAppState.value1Identifier)) {
       double number = myParse(numberString, MyAppState.value1Identifier);
@@ -473,8 +452,6 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     return _port != null;
   }
 
-  static List<FlSpot> newData = new List<FlSpot>();
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -523,23 +500,10 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                   ),
                 ),
                 Text("Result Data", style: Theme.of(context).textTheme.headline),
-                ...?_serialData,
-                Text(lastTextSent),
-                MyLineChart(
-                  maxY: 1,
-                  minY: -1,
-                  data: newData, 
-                  lineColor: Colors.deepPurple[400].withOpacity(1), 
-                  areaColor: Colors.deepPurple[300].withOpacity(0.85),
-                )
-                // Use this to see raw data from USB
                 //...?_serialData,
-
-                // Use this to test without USB connection (generating values within the App)
-                //Text(parseDataFromUSB(textWidgets)),
-
-                // Use this to test with USB connection (generating values with STM)
-                //Text(parseDataFromUSB(_serialData))
+                ...?textWidgets,
+                Text('Last text sent to STM: ' + lastTextSent),
+                //Text(textSample == null? "jeje":textSample),
                 ],
               )
             )

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ventilador1/ConnectUSB.dart';
@@ -49,7 +51,7 @@ class ConfigurationPage extends StatelessWidget {
       }
       if (param2Text.text != "") {
         param2DecorationText = "Parameter 2 (current: " + param2Text.text + ")";
-        param2 = double.tryParse(param2Text.text) == null ? param2 : double.tryParse(param2Text.text);
+        param2 = double.tryParse(param2Text.text) == null ? PhysicalKeyboardKey.gameButton12 : double.tryParse(param2Text.text);
         ConnectUSBPageState.changeParam(2, param2);
       }
       if (param3Text.text != "") {
@@ -59,16 +61,16 @@ class ConfigurationPage extends StatelessWidget {
       }
     }
     else {
-      String text1 = param1Text.text == "" ? param1 : param1Text.text;
-      String text2 = param2Text.text == "" ? param2 : param2Text.text;
-      String text3 = param3Text.text == "" ? param3 : param3Text.text;
+      String text1 = param1Text.text == "" ? param1.toString() : param1Text.text;
+      String text2 = param2Text.text == "" ? param2.toString() : param2Text.text;
+      String text3 = param3Text.text == "" ? param3.toString() : param3Text.text;
       param1DecorationText = "Parameter 1 (current: " + text1 + ")";
       param2DecorationText = "Parameter 2 (current: " + text2 + ")";
       param3DecorationText = "Parameter 3 (current: " + text3 + ")";
       ConnectUSBPageState.sendParamsToSTM(
-        param1Text.text == "" ? param1 : param1Text.text, 
-        param2Text.text == "" ? param2 : param2Text.text, 
-        param3Text.text == "" ? param3 : param3Text.text, 
+        param1Text.text == "" ? param1.toString() : param1Text.text, 
+        param2Text.text == "" ? param2.toString() : param2Text.text, 
+        param3Text.text == "" ? param3.toString() : param3Text.text, 
       );
     }
     
@@ -121,7 +123,8 @@ class ConfigurationPage extends StatelessWidget {
       ConnectUSBPageState.sendDataToSTM(MyAppState.pauseIdentifier);
     }
     else {
-
+      if (ConnectUSBPageState.testTimer.isActive)
+        ConnectUSBPageState.testTimer.cancel();
     }
   }
 
@@ -130,7 +133,8 @@ class ConfigurationPage extends StatelessWidget {
       ConnectUSBPageState.sendDataToSTM(MyAppState.resumeIdentifier);
     } 
     else {
-
+      if (!ConnectUSBPageState.testTimer.isActive)
+        ConnectUSBPageState.testTimer = Timer.periodic(Duration(milliseconds: ConnectUSBPageState.timerRate), ConnectUSBPageState.testFunc);
     }
   }
 
@@ -146,20 +150,23 @@ class ConfigurationPage extends StatelessWidget {
   void stopMethod() {
     if (ConnectUSBPageState.connectedToSTM()) {
       ConnectUSBPageState.sendDataToSTM(MyAppState.stopIdentifier);
-      MyAppState.generateSeries();
     } 
     else {
-
+      if (ConnectUSBPageState.testTimer.isActive)
+        ConnectUSBPageState.testTimer.cancel();
     }
+    MyAppState.generateSeries();
   }
 
   void restartMethod() {
+    MyAppState.generateSeries();
+
     if (ConnectUSBPageState.connectedToSTM()) {
       ConnectUSBPageState.sendDataToSTM(MyAppState.restartIdentifier);
-      MyAppState.generateSeries();
     }
     else {
-
+      if (!ConnectUSBPageState.testTimer.isActive)
+        ConnectUSBPageState.testTimer = Timer.periodic(Duration(milliseconds: ConnectUSBPageState.timerRate), ConnectUSBPageState.testFunc);
     }
   }
 
@@ -207,13 +214,7 @@ class ConfigurationPage extends StatelessWidget {
           child: Text(MyAppState.button3Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph1Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
@@ -221,13 +222,7 @@ class ConfigurationPage extends StatelessWidget {
           child: Text(MyAppState.button4Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph2Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
@@ -235,13 +230,7 @@ class ConfigurationPage extends StatelessWidget {
           child: Text(MyAppState.button5Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => Graph3Page()));
-          },
+          onPressed: () {},
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
