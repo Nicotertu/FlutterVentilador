@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
-import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'ConnectUSB.dart';
 import 'myChart_mpCharts.dart';
-import 'myCharts.dart';
-import 'mySeries.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,7 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  // button names
+  // Top button names
   static const String button1Title = "Display";
   static const String button2Title = "Conectar USB";
   static const String button3Title = "Grafica 1";
@@ -27,33 +23,26 @@ class MyAppState extends State<MyApp> {
   static const String button6Title = "Conf. UTP";
 
   // Art style
+  static const double titleFontSize = 50;
   static const double buttonTextSize = 20;
-  static const Color buttonBackgroundColor = Colors.brown;
-  static const Color buttonTextColor = Colors.white;
-  static Color canvasColor = Colors.brown[100];
+  static const Color buttonBackgroundColor = Colors.white;
+  static const Color buttonTextColor = Colors.black;
+  static Color canvasColor = Colors.black;
   static const double leftValuesTitleTextSize = 20;
   static const double leftValuesTextSize = 30;
-  static Color leftValuesBackgroundColor = Colors.brown[100];
-  static Color leftValuesTextColor = Colors.brown[900];
-  static Color graphColor = Colors.brown[600];
+  static Color valueTextColor = Colors.white;
+  static Color graphColor = Colors.limeAccent[350];
   static Color graphBackgroundColor = Colors.brown[300];
-  static Color graphGridColor = Colors.brown[900];
+  static Color graphGridColor = Colors.white;
+  static Color graphAxisLabelColor = Colors.white;
   static const String appTitle = "Ventilador UTP";
   static Color appTitleColor = Colors.brown[800];
-  static TextTheme textTheme = GoogleFonts.indieFlowerTextTheme();
-  static TextStyle titleTextStyle = GoogleFonts.nunito();
+  //static TextTheme textTheme = GoogleFonts.ralewayTextTheme();
+  static TextStyle titleTextStyle = GoogleFonts.raleway();
+  static FontStyle fontStyle = titleTextStyle.fontStyle;
 
-  // Graph values
+  // Graph variables
   static const int graphLength = 100;
-  static double currentGraphPosition = 0;
-  static double xPosition = 0;
-  static List<MyStackedAreaSeries> stackedAreaSeries1;
-  static List<MyStackedAreaSeries> stackedAreaSeries2;
-  static List<MyStackedAreaSeries> stackedAreaSeries3;
-  static MyStackedAreaChart stackedAreaChart1;
-  static MyStackedAreaChart stackedAreaChart2;
-  static MyStackedAreaChart stackedAreaChart3;
-
   static List<FlSpot> lineChart1Data;
   static List<FlSpot> lineChart2Data;
   static List<FlSpot> lineChart3Data;
@@ -67,11 +56,11 @@ class MyAppState extends State<MyApp> {
   static double minYgraph3 = -4;
   static double maxYgraph3 = 4;
   static double minXgraph1 = 0;
-  static double maxXgraph1 = 4000;
+  static double maxXgraph1 = 4;
   static double minXgraph2 = 0;
-  static double maxXgraph2 = 4000;
+  static double maxXgraph2 = 4;
   static double minXgraph3 = 0;
-  static double maxXgraph3 = 4000;
+  static double maxXgraph3 = 4;
   
   // Display values
   static const String value1Title = "Vti (mL)";
@@ -96,6 +85,7 @@ class MyAppState extends State<MyApp> {
   static const String graph1Identifier = 'guno';
   static const String graph2Identifier = 'gdos';
   static const String graph3Identifier = 'gtres';
+  static const String graphLengthIdentifier = 'glen';
   static const String xIdentifier = 'xxx';
 
   // identifiers for when the data is transmited to STM32
@@ -118,6 +108,8 @@ class MyAppState extends State<MyApp> {
       value4 = currentValue4.toStringAsFixed(2);
       lineChart1 = MyLineChart(
         data: lineChart1Data,
+        gridColor: graphGridColor,
+        axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
         lineWidth: 2,
         areaColor: graphBackgroundColor,
@@ -128,6 +120,8 @@ class MyAppState extends State<MyApp> {
         cutoffY: 0,);
       lineChart2 = MyLineChart(
         data: lineChart2Data,
+        gridColor: graphGridColor,
+        axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
         lineWidth: 2,
         areaColor: graphBackgroundColor,
@@ -138,6 +132,8 @@ class MyAppState extends State<MyApp> {
         cutoffY: 0,);
       lineChart3 = MyLineChart(
         data: lineChart3Data,
+        gridColor: graphGridColor,
+        axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
         lineWidth: 2,
         areaColor: graphBackgroundColor,
@@ -146,42 +142,6 @@ class MyAppState extends State<MyApp> {
         minX: minXgraph3,
         maxX: maxXgraph3,
         cutoffY: 0,);
-      /*
-      stackedAreaChart1 = MyStackedAreaChart(
-        data: stackedAreaSeries1, 
-        title: "", 
-        animate: false, 
-        fillArea: true, 
-        opacity: 0.9, 
-        graphColor: graphColor,
-        graphBackgroundColor: graphBackgroundColor,
-        gridColor: graphGridColor,
-        minAxis: -10,
-        maxAxis: 10,
-      );
-      stackedAreaChart2 = MyStackedAreaChart(
-        data: stackedAreaSeries2, 
-        title: "", 
-        animate: false, 
-        fillArea: true, 
-        opacity: 0.75, 
-        graphColor: graphColor,
-        graphBackgroundColor: graphBackgroundColor,
-        gridColor: graphGridColor,
-        minAxis: -10,
-        maxAxis: 10,
-      );
-      stackedAreaChart3 = MyStackedAreaChart(
-        data: stackedAreaSeries3, 
-        title: "", 
-        animate: false, 
-        fillArea: true, 
-        opacity: 0.5, 
-        graphColor: graphColor,
-        graphBackgroundColor: graphBackgroundColor,
-        gridColor: graphGridColor,
-        minAxis: -100,
-      );*/
     });
   }
 
@@ -210,6 +170,7 @@ class MyAppState extends State<MyApp> {
   
   static void getDataFromUSBToGraph(double xValue, double yValue, List<FlSpot> series, int graph) {
     int index = null;
+    xValue = convertMillisecondToSecond(xValue);
     for (int i = 0; i < series.length; i++) {
       if (series[i].y == null) {
         index = i;
@@ -286,11 +247,21 @@ class MyAppState extends State<MyApp> {
     return;
   }
 
+  static double convertMillisecondToSecond(double number) {
+    return number/1000.0;
+  }
+
+  static void changeGraphXSize (double size) {
+    maxXgraph1 = size;
+    maxXgraph2 = size;
+    maxXgraph3 = size;
+  }
+
   @override 
   Widget build(BuildContext context) {
     return MaterialApp (
       theme: ThemeData(
-        textTheme: textTheme,
+        //textTheme: textTheme,
         primaryColor: appTitleColor,
         canvasColor: canvasColor,
         dividerTheme: DividerThemeData(

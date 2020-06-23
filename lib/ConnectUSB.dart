@@ -1,17 +1,11 @@
-import 'dart:developer';
-
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:usb_serial/transaction.dart';
-import 'myChart_mpCharts.dart';
+import 'HospitalConfigurationPage.dart';
 import 'ConfigurationPage.dart';
 import 'DisplayValuesPage.dart';
-import 'Graph1.dart';
-import 'Graph2.dart';
-import 'Graph3.dart';
 import 'main.dart';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
@@ -74,11 +68,11 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         _port.inputStream, Uint8List.fromList([13, 10]));
 
     _subscription = _transaction.stream.listen((String line) {
-      parseDataFromUSB(line);/*
+      parseDataFromUSB(line);
       _serialData.add(Text(line));
       if (_serialData.length > 2) {
         _serialData.removeAt(0);
-      }*/
+      }
     });
     _status = "Connected";
     return true;
@@ -95,8 +89,9 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
           title: Text(device.productName),
           subtitle: Text(device.manufacturerName),
           trailing: RaisedButton(
+            color: MyAppState.buttonBackgroundColor,
             child:
-                Text(_deviceId == device.deviceId ? "Disconnect" : "Connect"),
+                Text(_deviceId == device.deviceId ? "Disconnect" : "Connect", style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor)),
             onPressed: () {
               _connectTo(_deviceId == device.deviceId ? null : device)
                   .then((res) {
@@ -119,7 +114,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
 
     _getPorts();
 
-    testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
+    //testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
 
     // Force the orientation to be landscape 
     SystemChrome.setPreferredOrientations([
@@ -251,7 +246,13 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
           child: Text(MyAppState.button5Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {},
+          onPressed: () 
+          {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (context) => HospitalConfigurationPage()));
+          },
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
@@ -313,11 +314,6 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         // Classify the data
         myData = classifyData(myData, numberString, position);
       }
-
-      MyAppState.currentGraphPosition ++;
-      if (MyAppState.currentGraphPosition > MyAppState.graphLength) {
-        MyAppState.currentGraphPosition = 0;
-      } 
     }
   }
 
@@ -374,12 +370,12 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       // updating the value
       MyAppState.currentValue4 = number;
     }
-    else if (numberString.contains(MyAppState.xIdentifier)) {
-      double number = myParse(numberString, MyAppState.xIdentifier);
+    else if (numberString.contains(MyAppState.graphLengthIdentifier)) {
+      double number = myParse(numberString, MyAppState.graphLengthIdentifier);
       // converting it to string to send it back to the screen
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
-      MyAppState.xPosition = number;
+      MyAppState.changeGraphXSize(MyAppState.convertMillisecondToSecond(number));
     }
     return myData;
   }
@@ -440,8 +436,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     }
   }
 
-  static void sendParamsToSTM(String param1, String param2, String param3) {
-    sendDataToSTM(MyAppState.paramIdentifier + " " + param1 + " " + param2 + " " + param3);
+  static void sendParamsToSTM(int param1, int param2, int param3) {
+    sendDataToSTM(MyAppState.paramIdentifier + " " + (param1 * 10).toString() + " " + (param2 * 10).toString() + " " + (param3 * 10).toString());
   }
 
   static void sendKValToSTM(String k1, String k2, String k3) {
@@ -457,10 +453,10 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
+      /*appBar: AppBar(
+        title: Text(MyAppState.appTitle, style: TextStyle(color: MyAppState.buttonTextColor, fontSize: MyAppState.titleFontSize, fontStyle: MyAppState.fontStyle)),
         centerTitle: true,
-      ),
+      ),*/
       body: Container(
         padding: EdgeInsets.all(20),
         width: size.width, 
@@ -475,9 +471,9 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                   _ports.length > 0
                       ? "Available Serial Ports"
                       : "No serial devices available",
-                  style: Theme.of(context).textTheme.headline6),
+                  style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
                 ..._ports,
-                Text('Status: $_status\n'),
+                Text('Status: $_status\n', style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
                 ListTile(
                   title: TextField(
                     controller: _textController,
@@ -487,7 +483,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                     ),
                   ),
                   trailing: RaisedButton(
-                    child: Text("Send"),
+                    color: MyAppState.buttonBackgroundColor,
+                    child: Text("Send", style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor)),
                     onPressed: _port == null
                         ? null
                         : () async {
@@ -499,10 +496,10 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                           },
                   ),
                 ),
-                Text("Result Data", style: Theme.of(context).textTheme.headline),
-                //...?_serialData,
+                Text("Result Data", style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
+                ...?_serialData,
                 ...?textWidgets,
-                Text('Last text sent to STM: ' + lastTextSent),
+                Text('Last text sent to STM: ' + lastTextSent, style: TextStyle(fontSize: MyAppState.leftValuesTextSize - 10, color: MyAppState.valueTextColor)),
                 //Text(textSample == null? "jeje":textSample),
                 ],
               )

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ConfigurationPage.dart';
 import 'DisplayValuesPage.dart';
-import 'Graph1.dart';
-import 'Graph3.dart';
 import 'main.dart';
 
 class Graph2Page extends StatelessWidget {
@@ -118,57 +116,57 @@ class Graph2Page extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-          title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
+      /*appBar: AppBar(
+          title: Text(MyAppState.appTitle, style: TextStyle(color: MyAppState.buttonTextColor, fontSize: MyAppState.titleFontSize, fontStyle: MyAppState.fontStyle)),
           centerTitle: true,
-        ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          width: size.width, 
-          height: size.height, 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(flex: 1, child: returnButtonRow(context)),
-              Expanded(flex: 10, child: Row(children: <Widget>[
-                  Expanded(flex: 1, child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center, 
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1, 
-                        child: Container(
-                          child: GestureDetector(
-                            child: MyAppState.lineChart2Data.length != 0 ? 
-                              MyAppState.lineChart2 : 
-                              Text("Error graficando"),
-                            onTap: () 
-                            {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context, 
-                                MaterialPageRoute(
-                                  builder: (context) => DisplayPage()));
-                            },
-                            onDoubleTap: ()
-                            {
-                              createAlert(context).then((onValue){
-                                MyAppState.minYgraph2 = double.tryParse(onValue[0]);
-                                MyAppState.maxYgraph2 = double.tryParse(onValue[1]);
-                              });
-                            },
-                          ),
+        ),*/
+      body: Container(
+        padding: EdgeInsets.all(20),
+        width: size.width, 
+        height: size.height, 
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(flex: 1, child: returnButtonRow(context)),
+            Expanded(flex: 10, child: Row(children: <Widget>[
+                Expanded(flex: 1, child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center, 
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                  children: <Widget>[
+                    Expanded(
+                      flex: 1, 
+                      child: Container(
+                        child: GestureDetector(
+                          child: MyAppState.lineChart2Data.length != 0 ? 
+                            MyAppState.lineChart2 : 
+                            Text("Error graficando"),
+                          onTap: () 
+                          {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(
+                                builder: (context) => DisplayPage()));
+                          },
+                          onDoubleTap: ()
+                          {
+                            createAlert(context).then((onValue){
+                              MyAppState.minYgraph2 = double.tryParse(onValue[0]);
+                              MyAppState.maxYgraph2 = double.tryParse(onValue[1]);
+                            });
+                          },
                         ),
                       ),
-                    ],
-                  )
-                  ),
-                ],
-              )
-              ),
-            ],
-          )
-        ),
+                    ),
+                  ],
+                )
+                ),
+              ],
+            )
+            ),
+          ],
+        )
+      ),
     );
   }
 

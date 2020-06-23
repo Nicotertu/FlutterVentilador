@@ -1,12 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ventilador1/ConnectUSB.dart';
+import 'ConnectUSB.dart';
 import 'DisplayValuesPage.dart';
-import 'Graph1.dart';
-import 'Graph2.dart';
-import 'Graph3.dart';
+import 'HospitalConfigurationPage.dart';
 import 'main.dart';
 
 class ConfigurationPage extends StatelessWidget {
@@ -68,9 +65,9 @@ class ConfigurationPage extends StatelessWidget {
       param2DecorationText = "Parameter 2 (current: " + text2 + ")";
       param3DecorationText = "Parameter 3 (current: " + text3 + ")";
       ConnectUSBPageState.sendParamsToSTM(
-        param1Text.text == "" ? param1.toString() : param1Text.text, 
-        param2Text.text == "" ? param2.toString() : param2Text.text, 
-        param3Text.text == "" ? param3.toString() : param3Text.text, 
+        param1Text.text == "" ? param1 : int.tryParse(param1Text.text), 
+        param2Text.text == "" ? param2 : int.tryParse(param2Text.text), 
+        param3Text.text == "" ? param3 : int.tryParse(param3Text.text), 
       );
     }
     
@@ -230,7 +227,13 @@ class ConfigurationPage extends StatelessWidget {
           child: Text(MyAppState.button5Title, 
             style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {},
+          onPressed: () 
+          {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (context) => HospitalConfigurationPage()));
+          },
           color: MyAppState.buttonBackgroundColor,
         ),
         RaisedButton(
@@ -250,202 +253,202 @@ class ConfigurationPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-          title: Text(MyAppState.appTitle, style: MyAppState.titleTextStyle),
+      /*appBar: AppBar(
+          title: Text(MyAppState.appTitle, style: TextStyle(color: MyAppState.buttonTextColor, fontSize: MyAppState.titleFontSize, fontStyle: MyAppState.fontStyle)),
           centerTitle: true,
-        ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          width: size.width, 
-          height: size.height, 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(flex: 1, child: returnButtonRow(context)),
-              Expanded(flex: 10, child: Row(children: <Widget>[
-                  Expanded(flex: 1, child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, 
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+        ),*/
+      body: Container(
+        padding: EdgeInsets.all(20),
+        width: size.width, 
+        height: size.height, 
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(flex: 1, child: returnButtonRow(context)),
+            Expanded(flex: 10, child: Row(children: <Widget>[
+                Expanded(flex: 1, child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, 
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button1Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () async
-                              {
-                                // Parametros
-                                adjustParametersMethod();
-                              },
-                            ),
+                            child: Text(button1Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () async
+                            {
+                              // Parametros
+                              adjustParametersMethod();
+                            },
                           ),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: param1Text, decoration: InputDecoration(labelText: param1DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: param2Text, decoration: InputDecoration(labelText: param2DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: param3Text, decoration: InputDecoration(labelText: param3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: param1Text, decoration: InputDecoration(labelText: param1DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: param2Text, decoration: InputDecoration(labelText: param2DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: param3Text, decoration: InputDecoration(labelText: param3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button2Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () async
-                              {
-                                // K (x, kp, kv)
-                                adjustKMethod();
-                              },
-                            ),
+                            child: Text(button2Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () async
+                            {
+                              // K (x, kp, kv)
+                              adjustKMethod();
+                            },
                           ),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: k1Text, decoration: InputDecoration(labelText: k1DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: k2Text, decoration: InputDecoration(labelText: k2DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                          const SizedBox(width: 25),
-                          Expanded(child: TextField(controller: k3Text, decoration: InputDecoration(labelText: k3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: k1Text, decoration: InputDecoration(labelText: k1DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: k2Text, decoration: InputDecoration(labelText: k2DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                        const SizedBox(width: 25),
+                        Expanded(child: TextField(controller: k3Text, decoration: InputDecoration(labelText: k3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button3Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Pausa
-                                pauseMethod();
-                              },
-                            ),
+                            child: Text(button3Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Pausa
+                              pauseMethod();
+                            },
                           ),
-                          const SizedBox(width: 30),
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                        const SizedBox(width: 30),
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button4Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Continuar
-                                resumeMethod();
-                              },
-                            ),
+                            child: Text(button4Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Continuar
+                              resumeMethod();
+                            },
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button5Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Calibrar
-                                calibrateMethod();
-                              },
-                            ),
+                            child: Text(button5Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Calibrar
+                              calibrateMethod();
+                            },
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button6Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Detener
-                                stopMethod();
-                              },
-                            ),
+                            child: Text(button6Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Detener
+                              stopMethod();
+                            },
                           ),
-                          const SizedBox(width: 30),
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                        const SizedBox(width: 30),
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button7Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Reiniciar
-                                restartMethod();
-                              },
-                            ),
+                            child: Text(button7Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Reiniciar
+                              restartMethod();
+                            },
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          ButtonTheme(
-                            minWidth: buttonWidth,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColor,
+                            elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: RaisedButton(
-                              color: MyAppState.buttonBackgroundColor,
-                              elevation: buttonElevation,
-                              padding: EdgeInsets.all(buttonPadding),
-                              child: Text(button8Text, 
-                                style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
-                              onPressed: () 
-                              {
-                                // Ambu
-                                ambuMethod();
-                              },
-                            ),
+                            child: Text(button8Text, 
+                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                            onPressed: () 
+                            {
+                              // Ambu
+                              ambuMethod();
+                            },
                           ),
-                        ],
-                      ),
-                    ],
-                  )
-                  ),
-                ],
-              )
-              ),
-            ],
-          )
-        ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                ),
+              ],
+            )
+            ),
+          ],
+        )
+      ),
     );
   }
 
