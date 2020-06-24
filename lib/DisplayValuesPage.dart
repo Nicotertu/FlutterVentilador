@@ -1,78 +1,10 @@
 import 'package:flutter/material.dart';
-import 'ConfigurationPage.dart';
 import 'Graph1.dart';
 import 'Graph2.dart';
 import 'Graph3.dart';
-import 'HospitalConfigurationPage.dart';
 import 'main.dart';
 
 class DisplayPage extends StatelessWidget {
-
-  Row returnButtonRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        RaisedButton(
-          child: Text(MyAppState.button1Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button2Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button3Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button4Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button5Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () 
-          {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => HospitalConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button6Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => ConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        )
-      ],
-    );
-  }
 
   Future<List<String>> createAlert(BuildContext context, TextEditingController minY, TextEditingController maxY, int graph) {
     return showDialog(context: context, builder: (context) { 
@@ -149,8 +81,19 @@ class DisplayPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(flex: 1, child: returnButtonRow(context)),
-            Expanded(flex: 10, child: Row(children: <Widget>[
+            Expanded(
+              flex: 1, 
+              child: MyAppState.returnButtonRow(
+                (){},
+                MyAppState.button2Function(context),
+                MyAppState.button3Function(context),
+                MyAppState.button4Function(context),
+                MyAppState.button5Function(context),
+                MyAppState.button6Function(context)
+              )
+            ),
+            Expanded(flex: 9, child: Row(children: <Widget>[
+                VerticalDivider(color: MyAppState.dividerColorLight, width: 0,),
                 Expanded(flex: 1, child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start, 
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
@@ -158,37 +101,38 @@ class DisplayPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value1Title, style: TextStyle(fontSize: MyAppState.leftValuesTitleTextSize, color: MyAppState.valueTextColor)))),
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value1, style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value1Title, style: MyAppState.mediumTextStyleLight))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value1, style: MyAppState.largeTextStyleLight))),
                       ],
                     ),
-                    Divider(),
+                    Divider(color: MyAppState.dividerColorLight),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value2Title, style: TextStyle(fontSize: MyAppState.leftValuesTitleTextSize, color: MyAppState.valueTextColor)))),
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value2, style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value2Title, style: MyAppState.mediumTextStyleLight))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value2, style: MyAppState.largeTextStyleLight))),
                       ],
                     ),
-                    Divider(),
+                    Divider(color: MyAppState.dividerColorLight),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value3Title, style: TextStyle(fontSize: MyAppState.leftValuesTitleTextSize, color: MyAppState.valueTextColor)))),
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value3, style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value3Title, style: MyAppState.mediumTextStyleLight))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value3, style: MyAppState.largeTextStyleLight))),
                       ],
                     ),
-                    Divider(),
+                    Divider(color: MyAppState.dividerColorLight),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value4Title, style: TextStyle(fontSize: MyAppState.leftValuesTitleTextSize, color: MyAppState.valueTextColor)))),
-                        Container(margin: EdgeInsets.all(2), /*color: MyAppState.leftValuesBackgroundColor, */child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value4, style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value4Title, style: MyAppState.mediumTextStyleLight))),
+                        Container(margin: EdgeInsets.all(2), child: FittedBox(fit: BoxFit.fitWidth, child: Text(MyAppState.value4, style: MyAppState.largeTextStyleLight))),
                       ],
                     ),
                 ],
                 )
                 ),
+                VerticalDivider(color: MyAppState.dividerColorLight, width: 0,),
                 Expanded(flex: 6, child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center, 
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
@@ -210,13 +154,11 @@ class DisplayPage extends StatelessWidget {
                           TextEditingController minY = new TextEditingController();
                           TextEditingController maxY = new TextEditingController();
 
-                          createAlert(context, minY, maxY, 1).then((onValue){
-                            MyAppState.minYgraph1 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[0]));
-                            MyAppState.maxYgraph1 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[1]));
-                          });
+                          MyAppState.changeYRangeDialog(context, minY, maxY, 1);
                         },
                       ),
                     ),
+                    Divider(color: MyAppState.dividerColorLight),
                     Expanded(
                       flex: 1, 
                       child: GestureDetector(
@@ -234,13 +176,11 @@ class DisplayPage extends StatelessWidget {
                           TextEditingController minY = new TextEditingController();
                           TextEditingController maxY = new TextEditingController();
 
-                          createAlert(context, minY, maxY, 2).then((onValue){
-                            MyAppState.minYgraph2 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[0]));
-                            MyAppState.maxYgraph2 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[1]));
-                          });
+                          MyAppState.changeYRangeDialog(context, minY, maxY, 2);
                         },
                       ),
                     ),
+                    Divider(color: MyAppState.dividerColorLight),
                     Expanded(
                       flex: 1, 
                       child: GestureDetector(
@@ -258,16 +198,14 @@ class DisplayPage extends StatelessWidget {
                           TextEditingController minY = new TextEditingController();
                           TextEditingController maxY = new TextEditingController();
 
-                          createAlert(context, minY, maxY, 3).then((onValue){
-                            MyAppState.minYgraph3 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[0]));
-                            MyAppState.maxYgraph3 = MyAppState.convertMillisecondToSecond(double.tryParse(onValue[1]));
-                          });
+                          MyAppState.changeYRangeDialog(context, minY, maxY, 3);
                         },
                       ),
                     ),
                   ],
                 )
                 ),
+                VerticalDivider(color: MyAppState.dividerColorLight, width: 0,),
               ],
             )
             ),

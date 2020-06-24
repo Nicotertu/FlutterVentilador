@@ -3,9 +3,7 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:usb_serial/transaction.dart';
-import 'HospitalConfigurationPage.dart';
 import 'ConfigurationPage.dart';
-import 'DisplayValuesPage.dart';
 import 'main.dart';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
@@ -86,12 +84,12 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     devices.forEach((device) {
       _ports.add(ListTile(
           leading: Icon(Icons.usb),
-          title: Text(device.productName),
-          subtitle: Text(device.manufacturerName),
+          title: Text(device.productName, style: MyAppState.mediumTextStyleLight,),
+          subtitle: Text(device.manufacturerName, style: MyAppState.smallTextStyleLight,),
           trailing: RaisedButton(
-            color: MyAppState.buttonBackgroundColor,
+            color: MyAppState.buttonBackgroundColorLight,
             child:
-                Text(_deviceId == device.deviceId ? "Disconnect" : "Connect", style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor)),
+                Text(_deviceId == device.deviceId ? "Disconnect" : "Connect", style: MyAppState.mediumButtonTextStyleDark,),
             onPressed: () {
               _connectTo(_deviceId == device.deviceId ? null : device)
                   .then((res) {
@@ -114,7 +112,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
 
     _getPorts();
 
-    //testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
+    testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
 
     // Force the orientation to be landscape 
     SystemChrome.setPreferredOrientations([
@@ -203,74 +201,6 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     //_connectTo(null);
   }
 
-  Row returnButtonRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        RaisedButton(
-          child: Text(MyAppState.button1Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => DisplayPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button2Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button3Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button4Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button5Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () 
-          {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => HospitalConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button6Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => ConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        )
-      ],
-    );
-  }
-  
   static String lastTextSent = '';
   static void sendDataToSTM(String data) async {
     if (_port != null) {
@@ -464,16 +394,26 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(flex: 1, child: returnButtonRow(context)),
-            Expanded(flex: 10, child: 
+            Expanded(
+              flex: 1, 
+              child: MyAppState.returnButtonRow(
+                MyAppState.button1Function(context),
+                (){},
+                MyAppState.button3Function(context),
+                MyAppState.button4Function(context),
+                MyAppState.button5Function(context),
+                MyAppState.button6Function(context)
+              )
+            ),
+            Expanded(flex: 9, child: 
               Column(children: <Widget>[
                 Text(
                   _ports.length > 0
                       ? "Available Serial Ports"
                       : "No serial devices available",
-                  style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
+                  style: MyAppState.largeTextStyleLight),
                 ..._ports,
-                Text('Status: $_status\n', style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
+                Text('Status: $_status\n', style: MyAppState.largeTextStyleLight),
                 ListTile(
                   title: TextField(
                     controller: _textController,
@@ -483,8 +423,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                     ),
                   ),
                   trailing: RaisedButton(
-                    color: MyAppState.buttonBackgroundColor,
-                    child: Text("Send", style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor)),
+                    color: MyAppState.buttonBackgroundColorLight,
+                    child: Text("Send", style: MyAppState.largeButtonTextStyleDark),
                     onPressed: _port == null
                         ? null
                         : () async {
@@ -496,10 +436,12 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                           },
                   ),
                 ),
-                Text("Result Data", style: TextStyle(fontSize: MyAppState.leftValuesTextSize, color: MyAppState.valueTextColor)),
-                ...?_serialData,
-                ...?textWidgets,
-                Text('Last text sent to STM: ' + lastTextSent, style: TextStyle(fontSize: MyAppState.leftValuesTextSize - 10, color: MyAppState.valueTextColor)),
+                Text("Result Data", style: MyAppState.largeTextStyleLight),
+                //...?serialData
+                //...?textWidgets,
+                Text(_serialData.toString(), style: MyAppState.smallTextStyleLight),
+                Text(textWidgets.toString(), style: MyAppState.smallTextStyleLight),
+                Text('Last text sent to STM: ' + lastTextSent, style: MyAppState.smallTextStyleLight),
                 //Text(textSample == null? "jeje":textSample),
                 ],
               )

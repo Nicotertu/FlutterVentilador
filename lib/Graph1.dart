@@ -1,115 +1,10 @@
 import 'package:flutter/material.dart';
-import 'ConfigurationPage.dart';
 import 'DisplayValuesPage.dart';
 import 'main.dart';
 
 class Graph1Page extends StatelessWidget {
-
   final TextEditingController minY = new TextEditingController();
   final TextEditingController maxY = new TextEditingController();
-
-  Row returnButtonRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        RaisedButton(
-          child: Text(MyAppState.button1Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => DisplayPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button2Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button3Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button4Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button5Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          child: Text(MyAppState.button6Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => ConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        )
-      ],
-    );
-  }
-
-  Future<List<String>> createAlert(BuildContext context) {
-    return showDialog(context: context, builder: (context) { 
-      return AlertDialog(
-        title: Text('Configurar rango'),
-        content: Column(
-          children: <Widget>[
-            TextField(
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              controller: minY,
-            ), 
-            Text('Valor minimo Y'),
-            TextField(
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              controller: maxY,
-            ), 
-            Text('Valor maximo Y'),
-            
-          ],
-        ),
-        actions: <Widget>[
-          RaisedButton(
-              child: Text('Set'),
-              onPressed: () {
-                Navigator.of(context).pop(
-                  [
-                    minY.text.toString() == ''? MyAppState.minYgraph1.toString() : minY.text.toString(), 
-                    maxY.text.toString() == ''? MyAppState.maxYgraph1.toString() : maxY.text.toString()
-                  ]
-                );
-              },
-            )
-        ],
-      );
-    }
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +22,21 @@ class Graph1Page extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(flex: 1, child: returnButtonRow(context)),
-            Expanded(flex: 10, child: Row(children: <Widget>[
+            Expanded(
+              flex: 1, 
+              child: MyAppState.returnButtonRow(
+                MyAppState.button1Function(context),
+                MyAppState.button2Function(context),
+                MyAppState.button3Function(context),
+                MyAppState.button4Function(context),
+                MyAppState.button5Function(context),
+                MyAppState.button6Function(context)
+              )
+            ),
+            Expanded(flex: 9, child: Row(children: <Widget>[
                 Expanded(flex: 1, child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center, 
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                  //crossAxisAlignment: CrossAxisAlignment.center, 
+                  //mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
                   children: <Widget>[
                     Expanded(
                       flex: 1, 
@@ -150,10 +55,7 @@ class Graph1Page extends StatelessWidget {
                           },
                           onDoubleTap: ()
                           {
-                            createAlert(context).then((onValue){
-                              MyAppState.minYgraph1 = double.tryParse(onValue[0]);
-                              MyAppState.maxYgraph1 = double.tryParse(onValue[1]);
-                            });
+                            MyAppState.changeYRangeDialog(context, minY, maxY, 1);
                           },
                         ),
                       ),

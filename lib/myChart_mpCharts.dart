@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import 'main.dart';
+
 class MyLineChart extends StatefulWidget {
   final List<FlSpot> data;
   final double cutoffY;
@@ -38,6 +40,7 @@ class MyLineChart extends StatefulWidget {
 }
 
 class MyLineChartState extends State<MyLineChart> {
+  
   @override
   void initState() {
     super.initState();
@@ -47,7 +50,8 @@ class MyLineChartState extends State<MyLineChart> {
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        borderData: FlBorderData(border: Border.all(color: widget.gridColor)),
+        clipData: FlClipData(bottom: true, top: true, right: true, left: true),
+        borderData: FlBorderData(border: Border.all(color: widget.gridColor), show: false),
         gridData: FlGridData(
           drawHorizontalLine: true, 
           drawVerticalLine: true,
@@ -58,9 +62,9 @@ class MyLineChartState extends State<MyLineChart> {
         minX: widget.minX,
         maxX: widget.maxX,
         titlesData: FlTitlesData(
-          bottomTitles: SideTitles(showTitles: true, interval: widget.verticalInterval, textStyle: TextStyle(color: widget.axisLabelColor)),
+          bottomTitles: SideTitles(showTitles: true, interval: widget.verticalInterval, textStyle: MyAppState.smallTextStyleLight),
           topTitles: SideTitles(showTitles: false),
-          leftTitles: SideTitles(showTitles: true, textStyle: TextStyle(color: widget.axisLabelColor)),
+          leftTitles: SideTitles(showTitles: true, textStyle: MyAppState.smallTextStyleLight),
           rightTitles: SideTitles(showTitles: false)
         ),
         //extraLinesData: ExtraLinesData(verticalLines: [VerticalLine(x: 1500)]),

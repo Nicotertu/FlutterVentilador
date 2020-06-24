@@ -1,12 +1,25 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ventilador1/HospitalConfigurationPage.dart';
+import 'ConfigurationPage.dart';
 import 'ConnectUSB.dart';
+import 'DisplayValuesPage.dart';
 import 'myChart_mpCharts.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['fonts'], license);
+  });
+  
+  runApp(MyApp());
+} 
 
 class MyApp extends StatefulWidget {
   @override
@@ -14,6 +27,160 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  // button row
+  static Column returnButtonRow(Function button1Func, Function button2Func, Function button3Func, Function button4Func, Function button5Func, Function button6Func) {
+    return Column(
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            RaisedButton(
+              child: Text(button1Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button1Func,
+              color: buttonBackgroundColorLight,
+            ),
+            RaisedButton(
+              child: Text(button2Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button2Func,
+              color: buttonBackgroundColorLight,
+            ),
+            RaisedButton(
+              child: Text(button3Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button3Func,
+              color: buttonBackgroundColorLight,
+            ),
+            RaisedButton(
+              child: Text(button4Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button4Func,
+              color: buttonBackgroundColorLight,
+            ),
+            RaisedButton(
+              child: Text(button5Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button5Func,
+              color: buttonBackgroundColorLight,
+            ),
+            RaisedButton(
+              child: Text(button6Title, 
+                style: mediumButtonTextStyleDark,
+              ),
+              onPressed: button6Func,
+              color: buttonBackgroundColorLight,
+            )
+          ],
+        ),
+        Divider(color: dividerColorLight, height: 0),
+      ],
+    );
+  }
+  static Function button1Function(BuildContext context) {
+    return () {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      Navigator.push(
+        context, 
+        MaterialPageRoute(
+          builder: (context) => DisplayPage()));
+    };
+  }
+  static Function button2Function(BuildContext context) {
+    return () {
+      if (Navigator.canPop(context))
+        Navigator.pop(context);
+    };
+  }
+  static Function button3Function(BuildContext context) {
+    return () {};
+  }
+  static Function button4Function(BuildContext context) {
+    return () {};
+  }
+  static Function button5Function(BuildContext context) {
+    return () {
+      if (Navigator.canPop(context))
+        Navigator.pop(context);
+      Navigator.push(
+        context, 
+        MaterialPageRoute(
+          builder: (context) => HospitalConfigurationPage()));
+    };
+  }
+  static Function button6Function(BuildContext context) {
+    return () {
+      if (Navigator.canPop(context))
+        Navigator.pop(context);
+      Navigator.push(
+        context, 
+        MaterialPageRoute(
+          builder: (context) => ConfigurationPage()));
+    };
+  }
+  
+  // change graph y axis range
+  static Future <List<String>> changeYRangeDialog(BuildContext context, TextEditingController minController, TextEditingController maxController, int graph) {
+    return showDialog(context: context, builder: (context) { 
+      return AlertDialog(
+        title: Text('Configurar rango', style: largeTextStyleDark),
+        content: Column(
+          children: <Widget>[
+            TextField(
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: minController,
+            ), 
+            Text('Valor minimo Y', style: mediumTextStyleDark),
+            SingleChildScrollView(
+              child: Stack(
+                children: <Widget>[
+                  TextField(
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    controller: maxController,
+                  ),
+                ],
+              ),
+            ),
+            Text('Valor maximo Y', style: mediumTextStyleDark),
+            Divider(color: dividerColorDark, height: 20, thickness: 5),
+            RaisedButton(
+              color: buttonBackgroundColorDark,
+              child: Text('Set', style: largeButtonTextStyleLight),
+              onPressed: () {
+                if (graph == 1) {
+                  minYgraph1 = minController.text == ''? minYgraph1 : double.tryParse(minController.text);
+                  maxYgraph1 = maxController.text == ''? maxYgraph1 : double.tryParse(maxController.text);
+                }
+                else if (graph == 2) {
+                  minYgraph2 = minController.text == ''? minYgraph2 : double.tryParse(minController.text);
+                  maxYgraph2 = maxController.text == ''? maxYgraph2 : double.tryParse(maxController.text);
+                }
+                else if (graph == 3) {
+                  minYgraph3 = minController.text == ''? minYgraph3 : double.tryParse(minController.text);
+                  maxYgraph3 = maxController.text == ''? maxYgraph3 : double.tryParse(maxController.text);
+                }
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+        actions: <Widget>[
+          
+        ],
+      );
+    }
+    );
+  }
+
   // Top button names
   static const String button1Title = "Display";
   static const String button2Title = "Conectar USB";
@@ -23,23 +190,39 @@ class MyAppState extends State<MyApp> {
   static const String button6Title = "Conf. UTP";
 
   // Art style
-  static const double titleFontSize = 50;
-  static const double buttonTextSize = 20;
-  static const Color buttonBackgroundColor = Colors.white;
-  static const Color buttonTextColor = Colors.black;
+  static const double smallFontSize = 15;
+  static const double mediumFontSize = 22;
+  static const double largeFontSize = 35;
+  static const Color buttonBackgroundColorLight = Colors.white;
+  static const Color buttonBackgroundColorDark = Colors.black;
+  static const Color buttonTextColorDark = Colors.black;
+  static const Color buttonTextColorLight = Colors.white;
   static Color canvasColor = Colors.black;
-  static const double leftValuesTitleTextSize = 20;
-  static const double leftValuesTextSize = 30;
-  static Color valueTextColor = Colors.white;
-  static Color graphColor = Colors.limeAccent[350];
-  static Color graphBackgroundColor = Colors.brown[300];
-  static Color graphGridColor = Colors.white;
+  static Color valueTextColorLight = Colors.white;
+  static Color valueTextColorDark  = Colors.black;
+  static Color graphColor = Colors.lime;
+  static Color graphBackgroundColor = Colors.limeAccent;
+  static Color graphGridColor = Colors.lime;
   static Color graphAxisLabelColor = Colors.white;
   static const String appTitle = "Ventilador UTP";
-  static Color appTitleColor = Colors.brown[800];
-  //static TextTheme textTheme = GoogleFonts.ralewayTextTheme();
-  static TextStyle titleTextStyle = GoogleFonts.raleway();
-  static FontStyle fontStyle = titleTextStyle.fontStyle;
+  static Color appTitleColor = Colors.black;
+  static Color dividerColorLight = Colors.white;
+  static Color dividerColorDark = Colors.black;
+
+  // Text style
+  static String fontStyle = GoogleFonts.raleway().fontFamily;
+  static TextStyle smallButtonTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: smallFontSize, color: buttonTextColorDark);
+  static TextStyle mediumButtonTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: mediumFontSize, color: buttonTextColorDark);
+  static TextStyle largeButtonTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: largeFontSize, color: buttonTextColorDark);
+  static TextStyle smallButtonTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: smallFontSize, color: buttonTextColorLight);
+  static TextStyle mediumButtonTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: mediumFontSize, color: buttonTextColorLight);
+  static TextStyle largeButtonTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: largeFontSize, color: buttonTextColorLight);
+  static TextStyle smallTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: smallFontSize, color: valueTextColorLight);
+  static TextStyle mediumTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: mediumFontSize, color: valueTextColorLight);
+  static TextStyle largeTextStyleLight = TextStyle(fontFamily: fontStyle, fontSize: largeFontSize, color: valueTextColorLight);
+  static TextStyle smallTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: smallFontSize, color: valueTextColorDark);
+  static TextStyle mediumTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: mediumFontSize, color: valueTextColorDark);
+  static TextStyle largeTextStyleDark = TextStyle(fontFamily: fontStyle, fontSize: largeFontSize, color: valueTextColorDark);
 
   // Graph variables
   static const int graphLength = 100;
@@ -111,7 +294,7 @@ class MyAppState extends State<MyApp> {
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
-        lineWidth: 2,
+        lineWidth: 1,
         areaColor: graphBackgroundColor,
         minY: minYgraph1,
         maxY: maxYgraph1,
@@ -123,7 +306,7 @@ class MyAppState extends State<MyApp> {
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
-        lineWidth: 2,
+        lineWidth: 1,
         areaColor: graphBackgroundColor,
         minY: minYgraph2,
         maxY: maxYgraph2,
@@ -135,7 +318,7 @@ class MyAppState extends State<MyApp> {
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor,
-        lineWidth: 2,
+        lineWidth: 1,
         areaColor: graphBackgroundColor,
         minY: minYgraph3,
         maxY: maxYgraph3,

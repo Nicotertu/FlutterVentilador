@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'ConnectUSB.dart';
-import 'DisplayValuesPage.dart';
-import 'HospitalConfigurationPage.dart';
 import 'main.dart';
 
 class ConfigurationPage extends StatelessWidget {
@@ -176,78 +174,6 @@ class ConfigurationPage extends StatelessWidget {
     }
   }
 
-  Row returnButtonRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        RaisedButton(
-          elevation: 0,
-          child: const Text(MyAppState.button1Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => DisplayPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          elevation: 0,
-          child: Text(MyAppState.button2Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          elevation: 0,
-          child: Text(MyAppState.button3Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          elevation: 0,
-          child: Text(MyAppState.button4Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          elevation: 0,
-          child: Text(MyAppState.button5Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () 
-          {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => HospitalConfigurationPage()));
-          },
-          color: MyAppState.buttonBackgroundColor,
-        ),
-        RaisedButton(
-          elevation: 0,
-          child: Text(MyAppState.button6Title, 
-            style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {},
-          color: MyAppState.buttonBackgroundColor,
-        )
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -264,8 +190,18 @@ class ConfigurationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(flex: 1, child: returnButtonRow(context)),
-            Expanded(flex: 10, child: Row(children: <Widget>[
+            Expanded(
+              flex: 1, 
+              child: MyAppState.returnButtonRow(
+                MyAppState.button1Function(context),
+                MyAppState.button2Function(context),
+                MyAppState.button3Function(context),
+                MyAppState.button4Function(context),
+                MyAppState.button5Function(context),
+                (){}
+              )
+            ),
+            Expanded(flex: 9, child: Row(children: <Widget>[
                 Expanded(flex: 1, child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start, 
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
@@ -276,11 +212,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button1Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () async
                             {
                               // Parametros
@@ -302,11 +238,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button2Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () async
                             {
                               // K (x, kp, kv)
@@ -329,11 +265,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button3Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Pausa
@@ -346,11 +282,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button4Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Continuar
@@ -367,11 +303,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button5Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Calibrar
@@ -388,11 +324,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button6Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Detener
@@ -405,11 +341,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button7Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Reiniciar
@@ -426,11 +362,11 @@ class ConfigurationPage extends StatelessWidget {
                           minWidth: buttonWidth,
                           padding: EdgeInsets.all(buttonPadding),
                           child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColor,
+                            color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
                             child: Text(button8Text, 
-                              style: TextStyle(fontSize: MyAppState.buttonTextSize, color: MyAppState.buttonTextColor, fontWeight: FontWeight.bold),), 
+                              style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               // Ambu
@@ -453,4 +389,3 @@ class ConfigurationPage extends StatelessWidget {
   }
 
 }
-
