@@ -9,7 +9,6 @@ class HospitalConfigurationPage extends StatefulWidget {
 }
 
 class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
-  
   static const double buttonFontSize = 30;
   static const double textFontSize = 30;
   static const double textFieldSeparation = 200;
@@ -25,12 +24,9 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
   static const String hintText3 = 'I:E';
   static const String confirmButtonText = 'Aceptar';
 
-  static double parameter1Value = 0;
-  static double parameter2Value = 1;
-  static double parameter3Value = 2;
-  TextEditingController controller1 = new TextEditingController(text: parameter1Value.toString());
-  TextEditingController controller2 = new TextEditingController(text: parameter2Value.toString());
-  TextEditingController controller3 = new TextEditingController(text: parameter3Value.toString());
+  TextEditingController controller1 = new TextEditingController(text: MyAppState.currentValue5RR.toString());
+  TextEditingController controller2 = new TextEditingController(text: MyAppState.currentValue6Vol.toString());
+  TextEditingController controller3 = new TextEditingController(text: MyAppState.currentValue7IE.toString());
 
   @override
   void initState() {
@@ -40,6 +36,25 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  static void acceptedInputToast(TextEditingController controller1, TextEditingController controller2, TextEditingController controller3) {
+    Fluttertoast.showToast(
+      msg: parameterText1 + ': ' + MyAppState.currentValue5RR.toString() + '\r\n' +
+        parameterText2 + ': ' + MyAppState.currentValue6Vol.toString() + '\r\n' +
+        parameterText3 + ': ' + MyAppState.currentValue7IE.toString(),
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: MyAppState.toastBackground,
+      textColor: MyAppState.toastTextColor,
+      fontSize: 15
+    );
+    if (int.tryParse(controller1.text) != null) 
+      MyAppState.currentValue5RR = int.tryParse(controller1.text);
+    if (int.tryParse(controller2.text) != null) 
+      MyAppState.currentValue6Vol = int.tryParse(controller2.text);
+    if (int.tryParse(controller3.text) != null) 
+      MyAppState.currentValue7IE = int.tryParse(controller3.text);
   }
 
   @override 
@@ -90,9 +105,6 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             controller1.text = controller1.text.replaceAll(',', '.');
                             controller1.selection = TextSelection.collapsed(offset: controller1.text.length);
                           }
-                          if (double.tryParse(value) != null) {
-                            parameter1Value = double.tryParse(value);
-                          }
                         },
                         onTap: () {controller1.text = '';},
                       ),
@@ -103,8 +115,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller1.text) != null) {
-                                parameter1Value--;
-                                controller1.text = parameter1Value.toString();
+                                controller1.text = (double.tryParse(controller1.text) - 1).toString();
                               }
                             }, 
                             child: Text(lowerButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -115,8 +126,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller1.text) != null) {
-                                parameter1Value++;
-                                controller1.text = parameter1Value.toString();
+                                controller1.text = (double.tryParse(controller1.text) + 1).toString();
                               }
                             }, 
                             child: Text(upperButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -144,9 +154,6 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             controller2.text = controller2.text.replaceAll(',', '.');
                             controller2.selection = TextSelection.collapsed(offset: controller2.text.length);
                           }
-                          if (double.tryParse(value) != null) {
-                            parameter2Value = double.tryParse(value);
-                          }
                         },
                         onTap: () {controller2.text = '';},
                       ),
@@ -157,8 +164,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller2.text) != null) {
-                                parameter2Value--;
-                                controller2.text = parameter2Value.toString();
+                                controller2.text = (double.tryParse(controller2.text) - 1).toString();
                               }
                             }, 
                             child: Text(lowerButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -169,8 +175,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller2.text) != null) {
-                                parameter2Value++;
-                                controller2.text = parameter2Value.toString();
+                                controller2.text = (double.tryParse(controller2.text) + 1).toString();
                               }
                             }, 
                             child: Text(upperButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -198,9 +203,6 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             controller3.text = controller3.text.replaceAll(',', '.');
                             controller3.selection = TextSelection.collapsed(offset: controller3.text.length);
                           }
-                          if (double.tryParse(value) != null) {
-                            parameter3Value = double.tryParse(value);
-                          }
                         },
                         onTap: () {controller3.text = '';},
                       ),
@@ -211,8 +213,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller3.text) != null) {
-                                parameter3Value--;
-                                controller3.text = parameter1Value.toString();
+                                controller3.text = (double.tryParse(controller3.text) - 1).toString();
                               }
                             }, 
                             child: Text(lowerButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -223,8 +224,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                             onPressed: ()
                             {
                               if (double.tryParse(controller3.text) != null) {
-                                parameter3Value++;
-                                controller3.text = parameter3Value.toString();
+                                controller3.text = (double.tryParse(controller3.text) + 1).toString();
                               }
                             }, 
                             child: Text(upperButtonText, style: MyAppState.largeButtonTextStyleDark,), 
@@ -245,26 +245,17 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                 children: <Widget>[
                   RaisedButton(onPressed: () {
                     bool validText = controller1.text != '' && controller2.text != '' && controller3.text != '';
-                    if (validText)  {
+                    bool validNumbers = int.tryParse(controller1.text) != null && int.tryParse(controller2.text) != null && int.tryParse(controller3.text) != null;
+                    if (validText && validNumbers) {
                       ConnectUSBPageState.sendParamsToSTM(
-                        parameter1Value.toInt(), 
-                        parameter2Value.toInt(), 
-                        parameter3Value.toInt()
-                      );
-                      Fluttertoast.showToast(
-                        msg: parameterText1 + ': ' + parameter1Value.toString() + '\r\n' +
-                          parameterText2 + ': ' + parameter2Value.toString() + '\r\n' +
-                          parameterText3 + ': ' + parameter3Value.toString(),
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
-                        fontSize: 15
+                        int.tryParse(controller1.text), 
+                        int.tryParse(controller2.text),
+                        int.tryParse(controller3.text), 
                       );
                     }
                     else {
                       Fluttertoast.showToast(
-                        msg: 'Error en input',
+                        msg: 'Llene todos los campos',
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         backgroundColor: Colors.white,

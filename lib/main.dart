@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ventilador1/HospitalConfigurationPage.dart';
 import 'ConfigurationPage.dart';
 import 'ConnectUSB.dart';
@@ -51,27 +52,6 @@ class MyAppState extends State<MyApp> {
               color: buttonBackgroundColorLight,
             ),
             RaisedButton(
-              child: Text(button3Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button3Func,
-              color: buttonBackgroundColorLight,
-            ),
-            RaisedButton(
-              child: Text(button4Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button4Func,
-              color: buttonBackgroundColorLight,
-            ),
-            RaisedButton(
-              child: Text(button5Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button5Func,
-              color: buttonBackgroundColorLight,
-            ),
-            RaisedButton(
               child: Text(button6Title, 
                 style: mediumButtonTextStyleDark,
               ),
@@ -80,7 +60,6 @@ class MyAppState extends State<MyApp> {
             )
           ],
         ),
-        Divider(color: dividerColorLight, height: 0),
       ],
     );
   }
@@ -140,44 +119,165 @@ class MyAppState extends State<MyApp> {
               controller: minController,
             ), 
             Text('Valor minimo Y', style: mediumTextStyleDark),
-            SingleChildScrollView(
-              child: Stack(
-                children: <Widget>[
-                  TextField(
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    controller: maxController,
-                  ),
-                ],
-              ),
+            TextField(
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: maxController,
             ),
             Text('Valor maximo Y', style: mediumTextStyleDark),
-            Divider(color: dividerColorDark, height: 20, thickness: 5),
-            RaisedButton(
-              color: buttonBackgroundColorDark,
-              child: Text('Set', style: largeButtonTextStyleLight),
-              onPressed: () {
-                if (graph == 1) {
-                  minYgraph1 = minController.text == ''? minYgraph1 : double.tryParse(minController.text);
-                  maxYgraph1 = maxController.text == ''? maxYgraph1 : double.tryParse(maxController.text);
-                }
-                else if (graph == 2) {
-                  minYgraph2 = minController.text == ''? minYgraph2 : double.tryParse(minController.text);
-                  maxYgraph2 = maxController.text == ''? maxYgraph2 : double.tryParse(maxController.text);
-                }
-                else if (graph == 3) {
-                  minYgraph3 = minController.text == ''? minYgraph3 : double.tryParse(minController.text);
-                  maxYgraph3 = maxController.text == ''? maxYgraph3 : double.tryParse(maxController.text);
-                }
-                Navigator.pop(context);
-              },
-            )
+            Expanded(
+              child: Align(
+                alignment: FractionalOffset.bottomCenter, 
+                child: RaisedButton(
+                  color: buttonBackgroundColorDark,
+                  child: Text('Set', style: largeButtonTextStyleLight),
+                  onPressed: () {
+                    if (graph == 1) {
+                      minYgraph1 = minController.text == ''? minYgraph1 : double.tryParse(minController.text);
+                      maxYgraph1 = maxController.text == ''? maxYgraph1 : double.tryParse(maxController.text);
+                    }
+                    else if (graph == 2) {
+                      minYgraph2 = minController.text == ''? minYgraph2 : double.tryParse(minController.text);
+                      maxYgraph2 = maxController.text == ''? maxYgraph2 : double.tryParse(maxController.text);
+                    }
+                    else if (graph == 3) {
+                      minYgraph3 = minController.text == ''? minYgraph3 : double.tryParse(minController.text);
+                      maxYgraph3 = maxController.text == ''? maxYgraph3 : double.tryParse(maxController.text);
+                    }
+                    adjustGraphInterval(graph);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ),
           ],
         ),
-        actions: <Widget>[
-          
-        ],
       );
     }
+    );
+  }
+
+  static TextEditingController  param1Controller = new TextEditingController(), 
+                                param2Controller = new TextEditingController(), 
+                                param3Controller = new TextEditingController();
+  static Future<List<String>> changeParametersDialog(BuildContext context) {
+    return showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: Text('Configurar parametros', style: largeTextStyleDark),
+        content: Column(
+          children: <Widget>[
+            TextField(
+              decoration: InputDecoration(labelText: 'Actual: ' + currentValue5RR.toString()),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: param1Controller,
+            ), 
+            Text('RR', style: mediumTextStyleDark),
+            TextField(
+              decoration: InputDecoration(labelText: 'Actual: ' + currentValue6Vol.toString()),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: param2Controller,
+            ),
+            Text('Volumen', style: mediumTextStyleDark),
+            TextField(
+              decoration: InputDecoration(labelText: 'Actual: ' + currentValue7IE.toString()),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: param3Controller,
+            ),
+            Text('I:E', style: mediumTextStyleDark),
+            Expanded(
+              child: Align(
+                alignment: FractionalOffset.bottomCenter, 
+                child: RaisedButton(
+                  color: buttonBackgroundColorDark,
+                  child: Text('Set', style: largeButtonTextStyleLight),
+                  onPressed: () {
+                    bool validText = param1Controller.text != '' && param2Controller.text != '' && param3Controller.text != '';
+                    bool validNumbers = int.tryParse(param1Controller.text) != null && int.tryParse(param2Controller.text) != null && int.tryParse(param3Controller.text) != null;
+                    if (validText && validNumbers) {
+                      ConnectUSBPageState.sendParamsToSTM(
+                        int.tryParse(param1Controller.text), 
+                        int.tryParse(param2Controller.text),
+                        int.tryParse(param3Controller.text), 
+                      );
+                      HospitalConfigurationPageState.acceptedInputToast(param1Controller, param2Controller, param3Controller);
+                      Navigator.pop(context);
+                    }
+                    else {
+                      Fluttertoast.showToast(
+                        msg: 'Llene todos los campos',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        fontSize: 25
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  static void verticalPan(double delta, int graph) {
+    switch (graph) {
+      case 1:
+        double newDelta = delta * (maxYgraph1 - minYgraph1) / 40;
+        maxYgraph1 += newDelta;
+        minYgraph1 += newDelta;
+        break;
+      case 2:
+        double newDelta = delta * (maxYgraph2 - minYgraph2) / 40;
+        maxYgraph2 += newDelta;
+        minYgraph2 += newDelta;
+        break;
+      case 3:
+        double newDelta = delta * (maxYgraph3 - minYgraph3) / 40;
+        maxYgraph3 += newDelta;
+        minYgraph3 += newDelta;
+        break;
+      default:
+    }
+  }
+
+  static void zoomGraph(double delta, int graph) {
+    switch (graph) {
+      case 1:
+        // TODO: DOESNT WORK
+        double range = ((maxYgraph1 - minYgraph1) * delta).clamp(0, 200);
+        log('a');
+        minYgraph1 = - range / 2;
+        maxYgraph1 = range / 2;
+        break;
+      default:
+    }
+  }
+
+  static void adjustGraphInterval(int graph) {
+    switch (graph) {
+      case 1:
+        graph1Interval = ((maxYgraph1 - minYgraph1) / 4).roundToDouble();
+        break;
+      case 2:
+        graph2Interval = ((maxYgraph2 - minYgraph2) / 4).roundToDouble();
+        break;
+      case 3:
+        graph3Interval = ((maxYgraph3 - minYgraph3) / 4).roundToDouble();
+        break;
+      default:
+    }
+  }
+  
+  static void showErrorToast(String data) {
+    Fluttertoast.showToast(
+      msg: data,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: MyAppState.toastBackground,
+      textColor: MyAppState.toastTextColor,
+      fontSize: 15
     );
   }
 
@@ -190,24 +290,31 @@ class MyAppState extends State<MyApp> {
   static const String button6Title = "Conf. UTP";
 
   // Art style
+  static const String appTitle = "Ventilador UTP";
   static const double smallFontSize = 15;
   static const double mediumFontSize = 22;
   static const double largeFontSize = 35;
+  static const double borderEdge = 10;
   static const Color buttonBackgroundColorLight = Colors.white;
   static const Color buttonBackgroundColorDark = Colors.black;
   static const Color buttonTextColorDark = Colors.black;
   static const Color buttonTextColorLight = Colors.white;
-  static Color canvasColor = Colors.black;
+  static Color canvasColor = Colors.blue[900];
   static Color valueTextColorLight = Colors.white;
   static Color valueTextColorDark  = Colors.black;
-  static Color graphColor = Colors.lime;
-  static Color graphBackgroundColor = Colors.limeAccent;
-  static Color graphGridColor = Colors.lime;
+  static Color graphColor1 = Colors.lightBlue;
+  static Color graphBackgroundColor1 = Colors.lightBlueAccent;
+  static Color graphColor2 = Colors.lime;
+  static Color graphBackgroundColor2 = Colors.limeAccent;
+  static Color graphColor3 = Colors.pink;
+  static Color graphBackgroundColor3 = Colors.pinkAccent;
+  static Color graphGridColor = Colors.lightBlue;
   static Color graphAxisLabelColor = Colors.white;
-  static const String appTitle = "Ventilador UTP";
   static Color appTitleColor = Colors.black;
   static Color dividerColorLight = Colors.white;
   static Color dividerColorDark = Colors.black;
+  static Color toastBackground = Colors.white;
+  static Color toastTextColor = Colors.black;
 
   // Text style
   static String fontStyle = GoogleFonts.raleway().fontFamily;
@@ -232,6 +339,9 @@ class MyAppState extends State<MyApp> {
   static MyLineChart lineChart1;
   static MyLineChart lineChart2;
   static MyLineChart lineChart3;
+  static double graph1Interval = 1;
+  static double graph2Interval = 1;
+  static double graph3Interval = 1;
   static double minYgraph1 = -1;
   static double maxYgraph1 = 1;
   static double minYgraph2 = -1;
@@ -246,20 +356,23 @@ class MyAppState extends State<MyApp> {
   static double maxXgraph3 = 4;
   
   // Display values
-  static const String value1Title = "Vti (mL)";
-  static const String value2Title = "Vte (mL)";
-  static const String value3Title = "PIP (cmH2O)";
-  static const String value4Title = "PEEP (cmH2O)";
-  static String value1 = "0";
-  static String value2 = "0";
-  static String value3 = "0";
-  static String value4 = "0";
-  static double currentValue1 = 0;
-  static double currentValue2 = 0;
-  static double currentValue3 = 0;
-  static double currentValue4 = 0;
+  static double currentValue1Vti = 0;
+  static double currentValue2Vte = 0;
+  static double currentValue3PIP = 0;
+  static double currentValue4PEEP = 0;
+  static int currentValue5RR = 0;
+  static int currentValue6Vol = 0;
+  static int currentValue7IE = 0;
 
   // identifiers for when the data is received from STM32
+  static const String inputAccepted = 'Combination accepted!';
+  static const String inputError1 = 'Tidal volume too high! Ignoring...';
+  static const String inputError2 = 'Tidal volume too low! Ignoring...';
+  static const String inputError3 = 'Respiration rate too high! Ignoring...';
+  static const String inputError4 = 'Respiration rate too low! Ignoring...';
+  static const String inputError5 = 'Respiration relation too high! Ignoring...';
+  static const String inputError6 = 'Respiration relation too low! Ignoring...';
+  static const String inputError7 = 'Impossible combination! Ignoring...';
   static const String receivingValuesIdentifier = "DATATOGRAPH: ";
   static const String value1Identifier = 'rUUuno';
   static const String value2Identifier = 'rdos';
@@ -270,6 +383,9 @@ class MyAppState extends State<MyApp> {
   static const String graph3Identifier = 'gtres';
   static const String graphLengthIdentifier = 'glen';
   static const String xIdentifier = 'xxx';
+  static const String respirationRateIdentifier = 'RR: ';
+  static const String inspirationExpirationIdentifier = 'X: ';
+  static const String volumeIdentifier = 'Tidal Vol: ';
 
   // identifiers for when the data is transmited to STM32
   static const String pauseIdentifier = 'PAUSE';
@@ -280,22 +396,29 @@ class MyAppState extends State<MyApp> {
   static const String paramIdentifier = 'PARAMS';
   static const String kIdentifier = 'Kval';
   static const String ambuIdentifier = 'PLOT';
+  static const String printpIdentifier = 'PRINTP';
 
   static Timer refreshScreenTimer;
   static int screenRefreshRate = (0).round(); // 30 Hz in milliseconds
-  void refreshScreen(Timer timer) async {
+  void refreshScreen(Timer timer) {
     setState(() {
-      value1 = currentValue1.toStringAsFixed(2);
-      value2 = currentValue2.toStringAsFixed(2);
-      value3 = currentValue3.toStringAsFixed(2);
-      value4 = currentValue4.toStringAsFixed(2);
+      DisplayPageState.updateStrings(
+        currentValue1Vti, 
+        currentValue2Vte, 
+        currentValue3PIP, 
+        currentValue4PEEP,
+        currentValue5RR,
+        currentValue6Vol,
+        currentValue7IE
+      );
       lineChart1 = MyLineChart(
         data: lineChart1Data,
+        horizontalInterval: graph1Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
-        lineColor: graphColor,
+        lineColor: graphColor1,
         lineWidth: 1,
-        areaColor: graphBackgroundColor,
+        areaColor: graphBackgroundColor1,
         minY: minYgraph1,
         maxY: maxYgraph1,
         minX: minXgraph1,
@@ -303,11 +426,12 @@ class MyAppState extends State<MyApp> {
         cutoffY: 0,);
       lineChart2 = MyLineChart(
         data: lineChart2Data,
+        horizontalInterval: graph2Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
-        lineColor: graphColor,
+        lineColor: graphColor2,
         lineWidth: 1,
-        areaColor: graphBackgroundColor,
+        areaColor: graphBackgroundColor2,
         minY: minYgraph2,
         maxY: maxYgraph2,
         minX: minXgraph2,
@@ -315,11 +439,12 @@ class MyAppState extends State<MyApp> {
         cutoffY: 0,);
       lineChart3 = MyLineChart(
         data: lineChart3Data,
+        horizontalInterval: graph3Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
-        lineColor: graphColor,
+        lineColor: graphColor3,
         lineWidth: 1,
-        areaColor: graphBackgroundColor,
+        areaColor: graphBackgroundColor3,
         minY: minYgraph3,
         maxY: maxYgraph3,
         minX: minXgraph3,
@@ -339,6 +464,15 @@ class MyAppState extends State<MyApp> {
 
     // Disable screen being able to sleep
     Wakelock.enable();
+
+    // Hide android menu
+    SystemChrome.setEnabledSystemUIOverlays([]);
+
+    // Force the orientation to be landscape 
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
   }
 
   @override
@@ -417,6 +551,24 @@ class MyAppState extends State<MyApp> {
     }
   }
 
+  static void getDataFromUSBToValues(double value, int valueIndex) {
+    switch (valueIndex) {
+      case 1:
+        currentValue1Vti = value;
+        break;
+      case 2:
+        currentValue2Vte = value;
+        break;
+      case 3:
+        currentValue3PIP = value;
+        break;
+      case 4:
+        currentValue4PEEP = value;
+        break;
+      default:
+    }
+  }
+  
   static void generateSeries() {
     lineChart1Data = new List<FlSpot>();
     lineChart2Data = new List<FlSpot>();
@@ -448,7 +600,7 @@ class MyAppState extends State<MyApp> {
         primaryColor: appTitleColor,
         canvasColor: canvasColor,
         dividerTheme: DividerThemeData(
-          space: 15,
+          space: 0,
         ),
       ),
       home: ConnectUSBPage(),

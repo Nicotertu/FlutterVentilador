@@ -20,7 +20,7 @@ class MyLineChart extends StatefulWidget {
 
   MyLineChart({
     @required this.data,
-    this.horizontalInterval = 1,
+    @required this.horizontalInterval,
     this.verticalInterval = 0.5,
     this.lineColor,
     this.areaColor,
@@ -56,7 +56,8 @@ class MyLineChartState extends State<MyLineChart> {
           drawHorizontalLine: true, 
           drawVerticalLine: true,
           verticalInterval: widget.verticalInterval,
-          horizontalInterval:  widget.horizontalInterval),
+          horizontalInterval:  widget.horizontalInterval
+        ),
         minY: widget.minY,
         maxY: widget.maxY,
         minX: widget.minX,
@@ -64,7 +65,7 @@ class MyLineChartState extends State<MyLineChart> {
         titlesData: FlTitlesData(
           bottomTitles: SideTitles(showTitles: true, interval: widget.verticalInterval, textStyle: MyAppState.smallTextStyleLight),
           topTitles: SideTitles(showTitles: false),
-          leftTitles: SideTitles(showTitles: true, textStyle: MyAppState.smallTextStyleLight),
+          leftTitles: SideTitles(showTitles: true, interval: widget.horizontalInterval, textStyle: MyAppState.smallTextStyleLight),
           rightTitles: SideTitles(showTitles: false)
         ),
         //extraLinesData: ExtraLinesData(verticalLines: [VerticalLine(x: 1500)]),

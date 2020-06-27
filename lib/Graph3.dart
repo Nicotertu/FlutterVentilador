@@ -23,18 +23,7 @@ class Graph3Page extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              flex: 1, 
-              child: MyAppState.returnButtonRow(
-                MyAppState.button1Function(context),
-                MyAppState.button2Function(context),
-                MyAppState.button3Function(context),
-                MyAppState.button4Function(context),
-                MyAppState.button5Function(context),
-                MyAppState.button6Function(context)
-              )
-            ),
-            Expanded(flex: 9, child: Row(children: <Widget>[
+            Expanded(child: Row(children: <Widget>[
                 Expanded(flex: 1, child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center, 
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
@@ -57,6 +46,14 @@ class Graph3Page extends StatelessWidget {
                           onDoubleTap: ()
                           {
                             MyAppState.changeYRangeDialog(context, minY, maxY, 3);
+                          },
+                          onVerticalDragUpdate: (details) 
+                          {
+                            MyAppState.verticalPan(details.delta.dy, 3);
+                          },
+                          onScaleUpdate: (details) 
+                          {
+                            MyAppState.zoomGraph(details.scale, 3);
                           },
                         ),
                       ),

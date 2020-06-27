@@ -179,12 +179,13 @@ class ConfigurationPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       /*appBar: AppBar(
           title: Text(MyAppState.appTitle, style: TextStyle(color: MyAppState.buttonTextColor, fontSize: MyAppState.titleFontSize, fontStyle: MyAppState.fontStyle)),
           centerTitle: true,
         ),*/
       body: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(MyAppState.borderEdge),
         width: size.width, 
         height: size.height, 
         child: Column(

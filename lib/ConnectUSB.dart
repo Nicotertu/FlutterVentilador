@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:usb_serial/transaction.dart';
+import 'package:ventilador1/DisplayValuesPage.dart';
+import 'package:ventilador1/HospitalConfigurationPage.dart';
 import 'ConfigurationPage.dart';
 import 'main.dart';
 import 'dart:math' as math;
-import 'package:flutter/services.dart';
 
 void main() => runApp(ConnectUSBPage());
 
@@ -24,6 +26,12 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   Transaction<String> _transaction;
   int _deviceId;
   TextEditingController _textController = TextEditingController();
+
+  Timer checkParameterValuesTimer;
+  int checkParameterRate = 5;
+  void checkParameterValues(Timer timer) {
+    sendDataToSTM(MyAppState.printpIdentifier);
+  }
 
   Future<bool> _connectTo(device) async {
     
@@ -73,6 +81,19 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       }
     });
     _status = "Connected";
+    
+    checkParameterValuesTimer = Timer.periodic(Duration(seconds: checkParameterRate), checkParameterValues);
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    Navigator.push(
+        context, 
+        MaterialPageRoute(
+          builder: (context) => DisplayPage()
+        )
+    );
+    
     return true;
   }
 
@@ -113,12 +134,6 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     _getPorts();
 
     testTimer = Timer.periodic(Duration(milliseconds: timerRate), testFunc);
-
-    // Force the orientation to be landscape 
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
 
     ConfigurationPage.param1 = graph1Freq;
     ConfigurationPage.param2 = graph2Freq;
@@ -210,39 +225,108 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   }
   
   static void parseDataFromUSB(String data) {
-    String myData = "";
+
     if (data.contains(MyAppState.receivingValuesIdentifier)) {
-      // remove datatograph initializer
-      data = data.replaceAll(new RegExp(MyAppState.receivingValuesIdentifier), '');
-      // get the data position first
-      double position = 0;
-      if (data.contains(MyAppState.xIdentifier)) {
-        // grab from the identifier to the end
-        String numberString = data.substring(data.indexOf(MyAppState.xIdentifier));
-        // remove the identifier
-        numberString = numberString.substring(MyAppState.xIdentifier.length);
-        // get the index of the next comma
-        int commaIndex = numberString.indexOf(',');
-        // remove everything after the comma (included)
-        numberString = numberString.substring(0, commaIndex);
-        // transform into double
-        position = double.tryParse(numberString);
+      handleData(data);
+    }
+
+    if (data.contains(MyAppState.inputAccepted)) {
+      handleAcceptedInput(data);
+    }
+
+    handleErrors(data);
+
+    handleVerification(data);
+  }
+
+  static void handleData(String data) {
+    String myData = "";
+
+    // remove datatograph initializer
+    data = data.replaceAll(new RegExp(MyAppState.receivingValuesIdentifier), '');
+    // get the data position first
+    double position = 0;
+    if (data.contains(MyAppState.xIdentifier)) {
+      // grab from the identifier to the end
+      String numberString = data.substring(data.indexOf(MyAppState.xIdentifier));
+      // remove the identifier
+      numberString = numberString.substring(MyAppState.xIdentifier.length);
+      // get the index of the next comma
+      int commaIndex = numberString.indexOf(',');
+      // remove everything after the comma (included)
+      numberString = numberString.substring(0, commaIndex);
+      // transform into double
+      position = double.tryParse(numberString);
+    }
+    else {
+      //ERROR
+    }
+    
+    myData += data + '\r\n';
+    // extract number by number as long as there are commas
+    while (data.contains(',')) {
+      // find the index of the comma
+      int index = data.indexOf(',');
+      // grab everything from the beginning to the comma
+      String numberString = data.substring(0, index);
+      // removing the grabbed number
+      data = data.substring(index + 1);
+      // Classify the data
+      myData = classifyData(myData, numberString, position);
+    }
+  }
+
+  static void handleErrors(String data) {
+    if (data.contains(MyAppState.inputError1)) {
+      MyAppState.showErrorToast('Volumen muy alto.');
+    }
+    else if (data.contains(MyAppState.inputError2)) {
+      MyAppState.showErrorToast('Volumen muy bajo.');
+    }
+    else if (data.contains(MyAppState.inputError3)) {
+      MyAppState.showErrorToast('RR muy alto.');
+    }
+    else if (data.contains(MyAppState.inputError4)) {
+      MyAppState.showErrorToast('RR muy bajo.');
+    }
+    else if (data.contains(MyAppState.inputError5)) {
+      MyAppState.showErrorToast('I:E muy alto.');
+    }
+    else if (data.contains(MyAppState.inputError6)) {
+      MyAppState.showErrorToast('I:E muy bajo.');
+    }
+    else if (data.contains(MyAppState.inputError7)) {
+      MyAppState.showErrorToast('Combinacion imposible :(');
+    }
+  }
+
+  static void handleAcceptedInput(String data) {
+    HospitalConfigurationPageState.acceptedInputToast(MyAppState.param1Controller, MyAppState.param2Controller, MyAppState.param3Controller,);
+  }
+
+  static void handleVerification(String data) {
+    if (data.contains(MyAppState.inspirationExpirationIdentifier)) {
+      int startIndex = data.indexOf(MyAppState.inspirationExpirationIdentifier)+ MyAppState.inspirationExpirationIdentifier.length;
+      int endIndex = data.indexOf(' ', startIndex);
+      double number = double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.currentValue7IE) {
+        Fluttertoast.showToast(msg: 'ERROR\r\nIE from machine: ' + number.toString() + '\r\n' + 'IE from App: ' + MyAppState.currentValue7IE.toString());
       }
-      else {
-        //ERROR
+    }
+    if (data.contains(MyAppState.volumeIdentifier)) {
+      int startIndex = data.indexOf(MyAppState.volumeIdentifier)+ MyAppState.volumeIdentifier.length;
+      int endIndex = data.indexOf(' ', startIndex);
+      double number = double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.currentValue6Vol) {
+        Fluttertoast.showToast(msg: 'ERROR\r\nVol from machine: ' + number.toString() + '\r\n' + 'Vol from App: ' + MyAppState.currentValue6Vol.toString());
       }
-      
-      myData += data + '\r\n';
-      // extract number by number as long as there are commas
-      while (data.contains(',')) {
-        // find the index of the comma
-        int index = data.indexOf(',');
-        // grab everything from the beginning to the comma
-        String numberString = data.substring(0, index);
-        // removing the grabbed number
-        data = data.substring(index + 1);
-        // Classify the data
-        myData = classifyData(myData, numberString, position);
+    }
+    if (data.contains(MyAppState.respirationRateIdentifier)) {
+      int startIndex = data.indexOf(MyAppState.respirationRateIdentifier)+ MyAppState.respirationRateIdentifier.length;
+      int endIndex = data.indexOf(' ', startIndex);
+      double number = double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.currentValue5RR) {
+        Fluttertoast.showToast(msg: 'ERROR\r\nRR from machine: ' + number.toString() + '\r\n' + 'RR from App: ' + MyAppState.currentValue5RR.toString());
       }
     }
   }
@@ -277,28 +361,28 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       // converting it to string to send it back to the screen
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
-      MyAppState.currentValue1 = number;
+      MyAppState.getDataFromUSBToValues(number, 1);
     }
     else if (numberString.contains(MyAppState.value2Identifier)) {
       double number = myParse(numberString, MyAppState.value2Identifier);
       // converting it to string to send it back to the screen
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
-      MyAppState.currentValue2 = number;
+      MyAppState.getDataFromUSBToValues(number, 2);
     }
     else if (numberString.contains(MyAppState.value3Identifier)) {
       double number = myParse(numberString, MyAppState.value3Identifier);
       // converting it to string to send it back to the screen
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
-      MyAppState.currentValue3 = number;
+      MyAppState.getDataFromUSBToValues(number, 3);
     }
     else if (numberString.contains(MyAppState.value4Identifier)) {
       double number = myParse(numberString, MyAppState.value4Identifier);
       // converting it to string to send it back to the screen
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
-      MyAppState.currentValue4 = number;
+      MyAppState.getDataFromUSBToValues(number, 4);
     }
     else if (numberString.contains(MyAppState.graphLengthIdentifier)) {
       double number = myParse(numberString, MyAppState.graphLengthIdentifier);
@@ -383,12 +467,13 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       /*appBar: AppBar(
         title: Text(MyAppState.appTitle, style: TextStyle(color: MyAppState.buttonTextColor, fontSize: MyAppState.titleFontSize, fontStyle: MyAppState.fontStyle)),
         centerTitle: true,
       ),*/
       body: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(MyAppState.borderEdge),
         width: size.width, 
         height: size.height, 
         child: Column(
@@ -437,12 +522,11 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                   ),
                 ),
                 Text("Result Data", style: MyAppState.largeTextStyleLight),
-                //...?serialData
-                //...?textWidgets,
+                ...?_serialData,
+                ...?textWidgets,
                 Text(_serialData.toString(), style: MyAppState.smallTextStyleLight),
                 Text(textWidgets.toString(), style: MyAppState.smallTextStyleLight),
                 Text('Last text sent to STM: ' + lastTextSent, style: MyAppState.smallTextStyleLight),
-                //Text(textSample == null? "jeje":textSample),
                 ],
               )
             )
