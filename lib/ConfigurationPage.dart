@@ -191,17 +191,6 @@ class ConfigurationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              flex: 1, 
-              child: MyAppState.returnButtonRow(
-                MyAppState.button1Function(context),
-                MyAppState.button2Function(context),
-                MyAppState.button3Function(context),
-                MyAppState.button4Function(context),
-                MyAppState.button5Function(context),
-                (){}
-              )
-            ),
             Expanded(flex: 9, child: Row(children: <Widget>[
                 Expanded(flex: 1, child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start, 
@@ -372,6 +361,27 @@ class ConfigurationPage extends StatelessWidget {
                             {
                               // Ambu
                               ambuMethod();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColorLight,
+                            elevation: buttonElevation,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: Text('detener simulacion', 
+                              style: MyAppState.largeButtonTextStyleDark), 
+                            onPressed: () 
+                            {
+                              if (ConnectUSBPageState.testTimer.isActive)
+                                ConnectUSBPageState.testTimer.cancel();
                             },
                           ),
                         ),

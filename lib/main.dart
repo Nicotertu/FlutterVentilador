@@ -5,8 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ventilador1/HospitalConfigurationPage.dart';
-import 'ConfigurationPage.dart';
 import 'ConnectUSB.dart';
 import 'DisplayValuesPage.dart';
 import 'myChart_mpCharts.dart';
@@ -28,86 +26,8 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  // button row
-  static Column returnButtonRow(Function button1Func, Function button2Func, Function button3Func, Function button4Func, Function button5Func, Function button6Func) {
-    return Column(
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            RaisedButton(
-              child: Text(button1Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button1Func,
-              color: buttonBackgroundColorLight,
-            ),
-            RaisedButton(
-              child: Text(button2Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button2Func,
-              color: buttonBackgroundColorLight,
-            ),
-            RaisedButton(
-              child: Text(button6Title, 
-                style: mediumButtonTextStyleDark,
-              ),
-              onPressed: button6Func,
-              color: buttonBackgroundColorLight,
-            )
-          ],
-        ),
-      ],
-    );
-  }
-  static Function button1Function(BuildContext context) {
-    return () {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-      Navigator.push(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => DisplayPage()));
-    };
-  }
-  static Function button2Function(BuildContext context) {
-    return () {
-      if (Navigator.canPop(context))
-        Navigator.pop(context);
-    };
-  }
-  static Function button3Function(BuildContext context) {
-    return () {};
-  }
-  static Function button4Function(BuildContext context) {
-    return () {};
-  }
-  static Function button5Function(BuildContext context) {
-    return () {
-      if (Navigator.canPop(context))
-        Navigator.pop(context);
-      Navigator.push(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => HospitalConfigurationPage()));
-    };
-  }
-  static Function button6Function(BuildContext context) {
-    return () {
-      if (Navigator.canPop(context))
-        Navigator.pop(context);
-      Navigator.push(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => ConfigurationPage()));
-    };
-  }
-  
-  // change graph y axis range
+  // change graph y axis range  
+  static bool autoRange = false;
   static Future <List<String>> changeYRangeDialog(BuildContext context, TextEditingController minController, TextEditingController maxController, int graph) {
     return showDialog(context: context, builder: (context) { 
       return AlertDialog(
@@ -124,6 +44,18 @@ class MyAppState extends State<MyApp> {
               controller: maxController,
             ),
             Text('Valor maximo Y', style: mediumTextStyleDark),
+            Divider(color: dividerColorDark,),
+            ListTile(
+              leading: Switch(
+                value: autoRange,
+                activeColor: Colors.deepPurple,
+                activeTrackColor: Colors.purple,
+                onChanged: (activated) {
+                  autoRange = activated;
+                },
+              ), 
+              title: Text('Auto range Y')
+            ),
             Expanded(
               child: Align(
                 alignment: FractionalOffset.bottomCenter, 
@@ -159,6 +91,7 @@ class MyAppState extends State<MyApp> {
   static TextEditingController  param1Controller = new TextEditingController(), 
                                 param2Controller = new TextEditingController(), 
                                 param3Controller = new TextEditingController();
+
   static Future<List<String>> changeParametersDialog(BuildContext context) {
     return showDialog(context: context, builder: (context) {
       return AlertDialog(
@@ -194,11 +127,10 @@ class MyAppState extends State<MyApp> {
                     bool validNumbers = int.tryParse(param1Controller.text) != null && int.tryParse(param2Controller.text) != null && int.tryParse(param3Controller.text) != null;
                     if (validText && validNumbers) {
                       ConnectUSBPageState.sendParamsToSTM(
-                        int.tryParse(param1Controller.text), 
-                        int.tryParse(param2Controller.text),
-                        int.tryParse(param3Controller.text), 
+                        int.tryParse(param1Controller.text), //RR
+                        int.tryParse(param3Controller.text), //IE
+                        int.tryParse(param2Controller.text), //Vol
                       );
-                      HospitalConfigurationPageState.acceptedInputToast(param1Controller, param2Controller, param3Controller);
                       Navigator.pop(context);
                     }
                     else {
@@ -333,15 +265,21 @@ class MyAppState extends State<MyApp> {
 
   // Graph variables
   static const int graphLength = 100;
-  static List<FlSpot> lineChart1Data;
-  static List<FlSpot> lineChart2Data;
-  static List<FlSpot> lineChart3Data;
+  static List<FlSpot> lineChart1DataA = new List<FlSpot>();
+  static List<FlSpot> lineChart1DataB = new List<FlSpot>();
+  static List<FlSpot> lineChart2DataA = new List<FlSpot>();
+  static List<FlSpot> lineChart2DataB = new List<FlSpot>();
+  static List<FlSpot> lineChart3DataA = new List<FlSpot>();
+  static List<FlSpot> lineChart3DataB = new List<FlSpot>();
   static MyLineChart lineChart1;
   static MyLineChart lineChart2;
   static MyLineChart lineChart3;
   static double graph1Interval = 1;
   static double graph2Interval = 1;
   static double graph3Interval = 1;
+  static double graph1StandardInterval = 0.25;
+  static double graph2StandardInterval = 20;
+  static double graph3StandardInterval = 10;
   static double minYgraph1 = -1;
   static double maxYgraph1 = 1;
   static double minYgraph2 = -1;
@@ -401,6 +339,9 @@ class MyAppState extends State<MyApp> {
   static Timer refreshScreenTimer;
   static int screenRefreshRate = (0).round(); // 30 Hz in milliseconds
   void refreshScreen(Timer timer) {
+    // Hide android menu
+    SystemChrome.setEnabledSystemUIOverlays([]);
+
     setState(() {
       DisplayPageState.updateStrings(
         currentValue1Vti, 
@@ -412,41 +353,41 @@ class MyAppState extends State<MyApp> {
         currentValue7IE
       );
       lineChart1 = MyLineChart(
-        data: lineChart1Data,
-        horizontalInterval: graph1Interval,
+        data: [...lineChart1DataA,...lineChart1DataB],
+        horizontalInterval: autoRange? graph1StandardInterval:graph1Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor1,
         lineWidth: 1,
         areaColor: graphBackgroundColor1,
-        minY: minYgraph1,
-        maxY: maxYgraph1,
+        minY: autoRange? null:minYgraph1,
+        maxY: autoRange? null:maxYgraph1,
         minX: minXgraph1,
         maxX: maxXgraph1,
         cutoffY: 0,);
       lineChart2 = MyLineChart(
-        data: lineChart2Data,
-        horizontalInterval: graph2Interval,
+        data: [...lineChart2DataA,...lineChart2DataB],
+        horizontalInterval: autoRange? graph2StandardInterval:graph2Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor2,
         lineWidth: 1,
         areaColor: graphBackgroundColor2,
-        minY: minYgraph2,
-        maxY: maxYgraph2,
+        minY: autoRange? null:minYgraph2,
+        maxY: autoRange? null:maxYgraph2,
         minX: minXgraph2,
         maxX: maxXgraph2,
         cutoffY: 0,);
       lineChart3 = MyLineChart(
-        data: lineChart3Data,
-        horizontalInterval: graph3Interval,
+        data: [...lineChart3DataA,...lineChart3DataB],
+        horizontalInterval: autoRange? graph3StandardInterval:graph3Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
         lineColor: graphColor3,
         lineWidth: 1,
         areaColor: graphBackgroundColor3,
-        minY: minYgraph3,
-        maxY: maxYgraph3,
+        minY: autoRange? null:minYgraph3,
+        maxY: autoRange? null:maxYgraph3,
         minX: minXgraph3,
         maxX: maxXgraph3,
         cutoffY: 0,);
@@ -457,8 +398,6 @@ class MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
   
-    generateSeries();
-
     // Invoke a repeating function that refreshes the screen to update values and graphs
     refreshScreenTimer = Timer.periodic(Duration(milliseconds: screenRefreshRate), refreshScreen);
 
@@ -485,69 +424,166 @@ class MyAppState extends State<MyApp> {
   static int lastIndexModified2 = null;
   static int lastIndexModified3 = null;
   
-  static void getDataFromUSBToGraph(double xValue, double yValue, List<FlSpot> series, int graph) {
+  static void getDataFromUSBToGraph(double xValue, double yValue/*, List<FlSpot> series*/, int graph) {
     int index = null;
     xValue = convertMillisecondToSecond(xValue);
-    for (int i = 0; i < series.length; i++) {
-      if (series[i].y == null) {
-        index = i;
+
+    switch (graph) {
+      case 1:
+        for (int i = 0; i < lineChart1DataA.length; i++) {
+          if (lineChart1DataA[i].y == null) {
+            index = i;
+            break;
+          }
+          if (lineChart1DataA[i].x >= xValue) {
+            index = i;
+            break;
+          }
+        }
+        if (index == null) {
+          lineChart1DataA.add(new FlSpot(xValue, yValue));
+          lastIndexModified1 = lineChart1DataA.length - 1;
+        }
+        else {
+          lastIndexModified1 = modifyGraph(xValue, yValue, 1, index, lastIndexModified1);
+        }
         break;
-      }
-      if (series[i].x >= xValue) {
-        index = i;
+      case 2:
+        for (int i = 0; i < lineChart2DataA.length; i++) {
+          if (lineChart2DataA[i].y == null) {
+            index = i;
+            break;
+          }
+          if (lineChart2DataA[i].x >= xValue) {
+            index = i;
+            break;
+          }
+        }
+        if (index == null) {
+          lineChart2DataA.add(new FlSpot(xValue, yValue));
+          lastIndexModified2 = lineChart2DataA.length - 1;
+        }
+        else {
+          lastIndexModified2 = modifyGraph(xValue, yValue, 2, index, lastIndexModified2);
+        }
         break;
-      }
-    }
-    if (index == null) {
-      series.add(new FlSpot(xValue, yValue));
-      lastIndexModified1 = series.length - 1;
-      lastIndexModified2 = series.length - 1;
-      lastIndexModified3 = series.length - 1;
-    }
-    else {
-      switch (graph) {
-        case 1:
-          lastIndexModified1 = modifyGraph(xValue, yValue, series, index, lastIndexModified1);
-          break;
-        case 2:
-          lastIndexModified2 = modifyGraph(xValue, yValue, series, index, lastIndexModified2);
-          break;
-        case 3:
-          lastIndexModified3 = modifyGraph(xValue, yValue, series, index, lastIndexModified3);
-          break;
-        default:
-      }
+      case 3:
+        for (int i = 0; i < lineChart3DataA.length; i++) {
+          if (lineChart3DataA[i].y == null) {
+            index = i;
+            break;
+          }
+          if (lineChart3DataA[i].x >= xValue) {
+            index = i;
+            break;
+          }
+        }
+        if (index == null) {
+          lineChart3DataA.add(new FlSpot(xValue, yValue));
+          lastIndexModified3 = lineChart3DataA.length - 1;
+        }
+        else {
+          lastIndexModified3 = modifyGraph(xValue, yValue, 3, index, lastIndexModified3);
+        }
+        break;
+      default:
     }
   }
 
-  static int modifyGraph(double xValue, double yValue, List<FlSpot>series, int index, int lastIndex) {
-    if (lastIndex != null) {
-      if (index - lastIndex > 0) {
-        for (int i = 1; i < index - lastIndex; i++) {
-          series.removeAt(lastIndex + 1);
+  static int modifyGraph(double xValue, double yValue/*, List<FlSpot>series*/, int graph, int index, int lastIndex) {
+    switch (graph) {
+      case 1:
+        if (lastIndex != null) {
+          if (index - lastIndex > 0) {
+            for (int i = 1; i < index - lastIndex; i++) {
+              lineChart1DataA.removeAt(lastIndex + 1);
+            }
+            // Set the current point to the data
+            lineChart1DataA[lastIndex + 1] = new FlSpot(xValue, yValue);
+            if (lineChart1DataA.length > lastIndex + 2)
+              lineChart1DataA[lastIndex + 2] = new FlSpot(xValue, null);
+            return lastIndex + 1;
+          }
+          else {
+            for (var i = lastIndex + 1; i < lineChart1DataA.length; i++) {
+            }
+            lineChart1DataA.removeRange(lastIndex + 1, lineChart1DataA.length);
+            if (index > 0) {
+              lineChart1DataA.removeRange(0, index);
+            }
+            lineChart1DataA[0] = new FlSpot(xValue, yValue);
+            if (lineChart1DataA.length > 1)
+              lineChart1DataA[1] = new FlSpot(xValue, null);
+            return 0;
+          }
         }
-        // Set the current point to the data
-        series[lastIndex + 1] = new FlSpot(xValue, yValue);
-        if (series.length > lastIndex + 2)
-          series[lastIndex + 2] = new FlSpot(xValue, null);
-        return lastIndex + 1;
-      }
-      else {
-        for (var i = lastIndex + 1; i < series.length; i++) {
+        else {
+          lineChart1DataA[index] = new FlSpot(xValue, yValue);
+          return index;
         }
-        series.removeRange(lastIndex + 1, series.length);
-        if (index > 0) {
-          series.removeRange(0, index);
+        break;
+      case 2:
+        if (lastIndex != null) {
+          if (index - lastIndex > 0) {
+            for (int i = 1; i < index - lastIndex; i++) {
+              lineChart2DataA.removeAt(lastIndex + 1);
+            }
+            // Set the current point to the data
+            lineChart2DataA[lastIndex + 1] = new FlSpot(xValue, yValue);
+            if (lineChart2DataA.length > lastIndex + 2)
+              lineChart2DataA[lastIndex + 2] = new FlSpot(xValue, null);
+            return lastIndex + 1;
+          }
+          else {
+            for (var i = lastIndex + 1; i < lineChart2DataA.length; i++) {
+            }
+            lineChart2DataA.removeRange(lastIndex + 1, lineChart2DataA.length);
+            if (index > 0) {
+              lineChart2DataA.removeRange(0, index);
+            }
+            lineChart2DataA[0] = new FlSpot(xValue, yValue);
+            if (lineChart2DataA.length > 1)
+              lineChart2DataA[1] = new FlSpot(xValue, null);
+            return 0;
+          }
         }
-        series[0] = new FlSpot(xValue, yValue);
-        if (series.length > 1)
-          series[1] = new FlSpot(xValue, null);
-        return 0;
-      }
-    }
-    else {
-      series[index] = new FlSpot(xValue, yValue);
-      return index;
+        else {
+          lineChart2DataA[index] = new FlSpot(xValue, yValue);
+          return index;
+        }
+        break;
+      case 3:
+        if (lastIndex != null) {
+          if (index - lastIndex > 0) {
+            for (int i = 1; i < index - lastIndex; i++) {
+              lineChart3DataA.removeAt(lastIndex + 1);
+            }
+            // Set the current point to the data
+            lineChart3DataA[lastIndex + 1] = new FlSpot(xValue, yValue);
+            if (lineChart3DataA.length > lastIndex + 2)
+              lineChart3DataA[lastIndex + 2] = new FlSpot(xValue, null);
+            return lastIndex + 1;
+          }
+          else {
+            for (var i = lastIndex + 1; i < lineChart3DataA.length; i++) {
+            }
+            lineChart3DataA.removeRange(lastIndex + 1, lineChart3DataA.length);
+            if (index > 0) {
+              lineChart3DataA.removeRange(0, index);
+            }
+            lineChart3DataA[0] = new FlSpot(xValue, yValue);
+            if (lineChart3DataA.length > 1)
+              lineChart3DataA[1] = new FlSpot(xValue, null);
+            return 0;
+          }
+        }
+        else {
+          lineChart3DataA[index] = new FlSpot(xValue, yValue);
+          return index;
+        }
+        break;
+      default:
+        return null;
     }
   }
 
@@ -570,16 +606,15 @@ class MyAppState extends State<MyApp> {
   }
   
   static void generateSeries() {
-    lineChart1Data = new List<FlSpot>();
-    lineChart2Data = new List<FlSpot>();
-    lineChart3Data = new List<FlSpot>();
+    lineChart1DataA = new List<FlSpot>();
+    lineChart2DataA = new List<FlSpot>();
+    lineChart3DataA = new List<FlSpot>();
     
     for (double i = 0; i < graphLength; i++) {
-      lineChart1Data.add(FlSpot(i*10,null));
-      lineChart2Data.add(FlSpot(i*10,null)); 
-      lineChart3Data.add(FlSpot(i*10,null));
+      lineChart1DataA.add(FlSpot(i*10,null));
+      lineChart2DataA.add(FlSpot(i*10,null)); 
+      lineChart3DataA.add(FlSpot(i*10,null));
     }
-    return;
   }
 
   static double convertMillisecondToSecond(double number) {

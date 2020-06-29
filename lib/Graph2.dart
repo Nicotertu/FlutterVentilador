@@ -32,7 +32,7 @@ class Graph2Page extends StatelessWidget {
                       flex: 1, 
                       child: Container(
                         child: GestureDetector(
-                          child: MyAppState.lineChart2Data.length != 0 ? 
+                          child: MyAppState.lineChart2DataA.length != 0 ? 
                             MyAppState.lineChart2 : 
                             Text("Error graficando"),
                           onTap: () 

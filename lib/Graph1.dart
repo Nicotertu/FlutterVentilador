@@ -31,7 +31,7 @@ class Graph1Page extends StatelessWidget {
                       flex: 1, 
                       child: Container(
                         child: GestureDetector(
-                          child: MyAppState.lineChart1Data.length != 0 ? 
+                          child: MyAppState.lineChart1DataA.length != 0 ? 
                             MyAppState.lineChart1 : 
                             Text("Error graficando"),
                           onTap: () 

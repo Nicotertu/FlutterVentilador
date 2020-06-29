@@ -38,7 +38,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
     super.dispose();
   }
 
-  static void acceptedInputToast(TextEditingController controller1, TextEditingController controller2, TextEditingController controller3) {
+  static void acceptedInputToast() {
     Fluttertoast.showToast(
       msg: parameterText1 + ': ' + MyAppState.currentValue5RR.toString() + '\r\n' +
         parameterText2 + ': ' + MyAppState.currentValue6Vol.toString() + '\r\n' +
@@ -49,12 +49,6 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
       textColor: MyAppState.toastTextColor,
       fontSize: 15
     );
-    if (int.tryParse(controller1.text) != null) 
-      MyAppState.currentValue5RR = int.tryParse(controller1.text);
-    if (int.tryParse(controller2.text) != null) 
-      MyAppState.currentValue6Vol = int.tryParse(controller2.text);
-    if (int.tryParse(controller3.text) != null) 
-      MyAppState.currentValue7IE = int.tryParse(controller3.text);
   }
 
   @override 
@@ -73,17 +67,6 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              flex: 1, 
-              child: MyAppState.returnButtonRow(
-                MyAppState.button1Function(context),
-                MyAppState.button2Function(context),
-                MyAppState.button3Function(context),
-                MyAppState.button4Function(context),
-                () {},
-                MyAppState.button6Function(context)
-              )
-            ),
             Expanded(flex: 9, child: 
               Column(children: <Widget>[
               Row(

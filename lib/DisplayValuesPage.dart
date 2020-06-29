@@ -1,4 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ventilador1/ConfigurationPage.dart';
+import 'package:ventilador1/ConnectUSB.dart';
 import 'Graph1.dart';
 import 'Graph2.dart';
 import 'Graph3.dart';
@@ -36,14 +42,33 @@ class DisplayPageState extends State<DisplayPage> {
     value7IE = value7.toString();
   }
 
+  Timer checkIfConnectedTimer;
+  int checkIfConnectedRate = 1;
+  void checkIfConnected(Timer timer) {
+    if (ConnectUSBPageState.disconnectedSTM()) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      Fluttertoast.showToast(msg: 'STM Disconnected');
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
+
+    checkIfConnectedTimer = Timer.periodic(Duration(seconds: checkIfConnectedRate), checkIfConnected);
+    
+    // Hide android menu
+    SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
   @override
   void dispose() {
     super.dispose();
+    checkIfConnectedTimer.cancel();
   }
 
   Widget graphColumn(BuildContext context) {
@@ -57,7 +82,7 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart1Data.length == 0 || MyAppState.lineChart1 == null) ? Text("Error graficando") : MyAppState.lineChart1,
+              child: (MyAppState.lineChart1DataA.length == 0 || MyAppState.lineChart1 == null) ? Text("Error graficando") : MyAppState.lineChart1,
             ),
             onTap: ()
             {
@@ -90,7 +115,7 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart2Data.length == 0 || MyAppState.lineChart2 == null) ? Text("Error graficando") : MyAppState.lineChart2,
+              child: (MyAppState.lineChart2DataA.length == 0 || MyAppState.lineChart2 == null) ? Text("Error graficando") : MyAppState.lineChart2,
             ),
             onTap: ()
             {
@@ -123,7 +148,7 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart3Data.length == 0 || MyAppState.lineChart3 == null) ? Text("Error graficando") : MyAppState.lineChart3,
+              child: (MyAppState.lineChart3DataA.length == 0 || MyAppState.lineChart3 == null) ? Text("Error graficando") : MyAppState.lineChart3,
             ),
             onTap: ()
             {
@@ -248,6 +273,15 @@ class DisplayPageState extends State<DisplayPage> {
           ),
         ),
         GestureDetector(
+          onLongPress: () {
+            if (Navigator.canPop(context)){
+              Navigator.pop(context);
+            }
+            Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (context) => ConfigurationPage()));
+          },
           onDoubleTap: () {
             MyAppState.changeParametersDialog(context);
           },
@@ -324,17 +358,6 @@ class DisplayPageState extends State<DisplayPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              flex: 1, 
-              child: MyAppState.returnButtonRow(
-                (){},
-                MyAppState.button2Function(context),
-                MyAppState.button3Function(context),
-                MyAppState.button4Function(context),
-                MyAppState.button5Function(context),
-                MyAppState.button6Function(context)
-              )
-            ),
             Expanded(flex: 9, child: Row(children: <Widget>[
                 Expanded(flex: 1, child: leftValues()),
                 Expanded(flex: 6, child: graphColumn(context)),
