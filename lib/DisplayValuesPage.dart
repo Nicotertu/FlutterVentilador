@@ -16,41 +16,43 @@ class DisplayPage extends StatefulWidget {
 }
 
 class DisplayPageState extends State<DisplayPage> {
-
   static const String value1Title = "Vti (mL)";
   static const String value2Title = "Vte (mL)";
   static const String value3Title = "PIP (cmH2O)";
   static const String value4Title = "PEEP (cmH2O)";
-  static const String value5Title = "RR";
-  static const String value6Title = "Volumen";
-  static const String value7Title = "I:E";
+  static const String value5Title = "RR (BPM)";
+  static const String value6Title = "I:E";
+  static const String value7Title = "Volumen (mL)";
   static String value1Vti = "0";
   static String value2Vte = "0";
   static String value3PIP = "0";
   static String value4PEEP = "0";
   static String value5RR = "0";
-  static String value6Vol = "0";
-  static String value7IE = "0";
+  static String value6IE = "0";
+  static String value7Vol = "0";
+  static String cycle = '0';
+  bool paused = true;
 
   static void updateStrings(double value1, double value2, double value3, double value4, int value5, int value6, int value7) {
-    value1Vti = value1.toStringAsFixed(2);
-    value2Vte = value2.toStringAsFixed(2);
+    value1Vti = value1.toInt().toString();
+    value2Vte = value2.toInt().toString();
     value3PIP = value3.toStringAsFixed(2);
     value4PEEP = value4.toStringAsFixed(2);
     value5RR = value5.toString();
-    value6Vol = value6.toString();
-    value7IE = value7.toString();
+    value6IE = value6.toString();
+    value7Vol = value7.toString();
   }
 
   Timer checkIfConnectedTimer;
   int checkIfConnectedRate = 1;
   void checkIfConnected(Timer timer) {
+    //return;
     if (ConnectUSBPageState.disconnectedSTM()) {
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
 
-      Fluttertoast.showToast(msg: 'STM Disconnected');
+      Fluttertoast.showToast(msg: 'USB Disconnected');
     }
 
   }
@@ -82,7 +84,8 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart1DataA.length == 0 || MyAppState.lineChart1 == null) ? Text("Error graficando") : MyAppState.lineChart1,
+              child: MyAppState.lineChart1 == null ? Text("Error graficando") : MyAppState.lineChart1,
+              //child: ((MyAppState.lineChart1DataA.length == 0 && MyAppState.lineChart1DataB.length == 0) || MyAppState.lineChart1 == null) ? Text("Error graficando") : MyAppState.lineChart1,
             ),
             onTap: ()
             {
@@ -115,7 +118,8 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart2DataA.length == 0 || MyAppState.lineChart2 == null) ? Text("Error graficando") : MyAppState.lineChart2,
+              child: MyAppState.lineChart2 == null ? Text("Error graficando") : MyAppState.lineChart2,
+              //child: ((MyAppState.lineChart2DataA.length == 0 && MyAppState.lineChart2DataB.length == 0) || MyAppState.lineChart2 == null) ? Text("Error graficando") : MyAppState.lineChart2,
             ),
             onTap: ()
             {
@@ -148,7 +152,8 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               padding: EdgeInsets.only(left: 20, right: 10, top: 10),
               width: double.infinity,
-              child: (MyAppState.lineChart3DataA.length == 0 || MyAppState.lineChart3 == null) ? Text("Error graficando") : MyAppState.lineChart3,
+              child: MyAppState.lineChart3 == null ? Text("Error graficando") : MyAppState.lineChart3,
+              //child: ((MyAppState.lineChart3DataA.length == 0 && MyAppState.lineChart3DataB.length == 0) || MyAppState.lineChart3 == null) ? Text("Error graficando") : MyAppState.lineChart3,
             ),
             onTap: ()
             {
@@ -301,7 +306,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value6Vol, 
+                  value6IE, 
                   style: MyAppState.largeTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
@@ -329,13 +334,34 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value7IE, 
+                  value7Vol, 
                   style: MyAppState.largeTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
               ),
             ],
           ),
+        ),
+        RaisedButton(
+          onPressed: () {
+            if(Navigator.canPop(context)) Navigator.pop(context);
+          },
+        ),
+        RaisedButton(
+          onPressed: () {
+            if (paused) {
+              ConnectUSBPageState.sendDataToSTM(MyAppState.resumeIdentifier);
+            }
+            else {
+              ConnectUSBPageState.sendDataToSTM(MyAppState.pauseIdentifier);
+            }
+            paused = !paused;
+          }, 
+          child: Text(
+            paused? 'Iniciar' : 'Pausar',
+            style: MyAppState.mediumButtonTextStyleDark,
+          ),
+          color: MyAppState.buttonBackgroundColorLight,
         ),
       ],
     );

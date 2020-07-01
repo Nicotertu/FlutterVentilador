@@ -105,17 +105,17 @@ class MyAppState extends State<MyApp> {
             ), 
             Text('RR', style: mediumTextStyleDark),
             TextField(
-              decoration: InputDecoration(labelText: 'Actual: ' + currentValue6Vol.toString()),
+              decoration: InputDecoration(labelText: 'Actual: ' + currentValue6IE.toString()),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               controller: param2Controller,
             ),
-            Text('Volumen', style: mediumTextStyleDark),
+            Text('I:E', style: mediumTextStyleDark),
             TextField(
-              decoration: InputDecoration(labelText: 'Actual: ' + currentValue7IE.toString()),
+              decoration: InputDecoration(labelText: 'Actual: ' + currentValue7Vol.toString()),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               controller: param3Controller,
             ),
-            Text('I:E', style: mediumTextStyleDark),
+            Text('Volumen', style: mediumTextStyleDark),
             Expanded(
               child: Align(
                 alignment: FractionalOffset.bottomCenter, 
@@ -128,8 +128,8 @@ class MyAppState extends State<MyApp> {
                     if (validText && validNumbers) {
                       ConnectUSBPageState.sendParamsToSTM(
                         int.tryParse(param1Controller.text), //RR
-                        int.tryParse(param3Controller.text), //IE
                         int.tryParse(param2Controller.text), //Vol
+                        int.tryParse(param3Controller.text), //IE
                       );
                       Navigator.pop(context);
                     }
@@ -299,8 +299,8 @@ class MyAppState extends State<MyApp> {
   static double currentValue3PIP = 0;
   static double currentValue4PEEP = 0;
   static int currentValue5RR = 0;
-  static int currentValue6Vol = 0;
-  static int currentValue7IE = 0;
+  static int currentValue6IE = 0;
+  static int currentValue7Vol = 0;
 
   // identifiers for when the data is received from STM32
   static const String inputAccepted = 'Combination accepted!';
@@ -324,6 +324,7 @@ class MyAppState extends State<MyApp> {
   static const String respirationRateIdentifier = 'RR: ';
   static const String inspirationExpirationIdentifier = 'X: ';
   static const String volumeIdentifier = 'Tidal Vol: ';
+  static const String cycleIdenfitier = 'cycle';
 
   // identifiers for when the data is transmited to STM32
   static const String pauseIdentifier = 'PAUSE';
@@ -333,7 +334,7 @@ class MyAppState extends State<MyApp> {
   static const String restartIdentifier = 'Reiniciar';
   static const String paramIdentifier = 'PARAMS';
   static const String kIdentifier = 'Kval';
-  static const String ambuIdentifier = 'PLOT';
+  static const String plotIdenfitifer = 'PLOT';
   static const String printpIdentifier = 'PRINTP';
 
   static Timer refreshScreenTimer;
@@ -349,11 +350,11 @@ class MyAppState extends State<MyApp> {
         currentValue3PIP, 
         currentValue4PEEP,
         currentValue5RR,
-        currentValue6Vol,
-        currentValue7IE
+        currentValue6IE,
+        currentValue7Vol
       );
       lineChart1 = MyLineChart(
-        data: [...lineChart1DataA,...lineChart1DataB],
+        data: lineChart1DataA + [FlSpot(0,null)] + lineChart1DataB,
         horizontalInterval: autoRange? graph1StandardInterval:graph1Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
@@ -366,7 +367,7 @@ class MyAppState extends State<MyApp> {
         maxX: maxXgraph1,
         cutoffY: 0,);
       lineChart2 = MyLineChart(
-        data: [...lineChart2DataA,...lineChart2DataB],
+        data: lineChart2DataA + [FlSpot(0,null)] + lineChart2DataB,
         horizontalInterval: autoRange? graph2StandardInterval:graph2Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
@@ -379,7 +380,7 @@ class MyAppState extends State<MyApp> {
         maxX: maxXgraph2,
         cutoffY: 0,);
       lineChart3 = MyLineChart(
-        data: [...lineChart3DataA,...lineChart3DataB],
+        data: lineChart3DataA + [FlSpot(0,null)] + lineChart3DataB,
         horizontalInterval: autoRange? graph3StandardInterval:graph3Interval,
         gridColor: graphGridColor,
         axisLabelColor: graphAxisLabelColor,
@@ -423,8 +424,100 @@ class MyAppState extends State<MyApp> {
   static int lastIndexModified1 = null;
   static int lastIndexModified2 = null;
   static int lastIndexModified3 = null;
+  static int currentCycle = 0;
   
-  static void getDataFromUSBToGraph(double xValue, double yValue/*, List<FlSpot> series*/, int graph) {
+  static void getDataFromUSBToGraph(double xValue, double yValue, int graph, int cycle) {
+    xValue = convertMillisecondToSecond(xValue);
+    switch (graph) {
+      case 1:
+        if (cycle%2 == 0) {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart1DataB.length; i++) {
+            if(lineChart1DataB[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart1DataB.removeRange(0, firstLargerXIndex);
+      
+          lineChart1DataA.add(FlSpot(xValue, yValue));
+        }
+        else {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart1DataA.length; i++) {
+            if(lineChart1DataA[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart1DataA.removeRange(0, firstLargerXIndex);
+      
+          lineChart1DataB.add(FlSpot(xValue, yValue));
+        }
+      break;
+      case 2:
+        if (cycle%2 == 0) {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart2DataB.length; i++) {
+            if(lineChart2DataB[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart2DataB.removeRange(0, firstLargerXIndex);
+      
+          lineChart2DataA.add(FlSpot(xValue, yValue));
+        }
+        else {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart2DataA.length; i++) {
+            if(lineChart2DataA[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart2DataA.removeRange(0, firstLargerXIndex);
+      
+          lineChart2DataB.add(FlSpot(xValue, yValue));
+        }
+      break;
+      case 3:
+        if (cycle%2 == 0) {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart3DataB.length; i++) {
+            if(lineChart3DataB[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart3DataB.removeRange(0, firstLargerXIndex);
+      
+          lineChart3DataA.add(FlSpot(xValue, yValue));
+        }
+        else {
+          int firstLargerXIndex = 0;
+          for (int i = 0; i < lineChart3DataA.length; i++) {
+            if(lineChart3DataA[i].x > xValue) {
+              firstLargerXIndex = i;
+              break;
+            }
+          }
+          if (firstLargerXIndex != 0)
+            lineChart3DataA.removeRange(0, firstLargerXIndex);
+      
+          lineChart3DataB.add(FlSpot(xValue, yValue));
+        }
+      break;
+      default:
+    }
+    
+
+    return;
     int index = null;
     xValue = convertMillisecondToSecond(xValue);
 
@@ -490,7 +583,7 @@ class MyAppState extends State<MyApp> {
     }
   }
 
-  static int modifyGraph(double xValue, double yValue/*, List<FlSpot>series*/, int graph, int index, int lastIndex) {
+  static int modifyGraph(double xValue, double yValue, int graph, int index, int lastIndex) {
     switch (graph) {
       case 1:
         if (lastIndex != null) {

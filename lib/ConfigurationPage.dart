@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'ConnectUSB.dart';
+import 'DisplayValuesPage.dart';
 import 'main.dart';
 
 class ConfigurationPage extends StatelessWidget {
@@ -34,45 +35,6 @@ class ConfigurationPage extends StatelessWidget {
 
   static double param1, param2, param3;
   static double k1, k2, k3;
-
-  void adjustParametersMethod() {
-    MyAppState.generateSeries();
-
-    if (!ConnectUSBPageState.connectedToSTM()) {
-      if (param1Text.text != "") {
-        param1DecorationText = "Parameter 1 (current: " + param1Text.text + ")";
-        param1 = double.tryParse(param1Text.text) == null ? param1 : double.tryParse(param1Text.text);
-        ConnectUSBPageState.changeParam(1, param1);
-      }
-      if (param2Text.text != "") {
-        param2DecorationText = "Parameter 2 (current: " + param2Text.text + ")";
-        param2 = double.tryParse(param2Text.text) == null ? PhysicalKeyboardKey.gameButton12 : double.tryParse(param2Text.text);
-        ConnectUSBPageState.changeParam(2, param2);
-      }
-      if (param3Text.text != "") {
-        param3DecorationText = "Parameter 3 (current: " + param3Text.text + ")";
-        param3 = double.tryParse(param3Text.text) == null ? param3 : double.tryParse(param3Text.text);
-        ConnectUSBPageState.changeParam(3, param3);
-      }
-    }
-    else {
-      String text1 = param1Text.text == "" ? param1.toString() : param1Text.text;
-      String text2 = param2Text.text == "" ? param2.toString() : param2Text.text;
-      String text3 = param3Text.text == "" ? param3.toString() : param3Text.text;
-      param1DecorationText = "Parameter 1 (current: " + text1 + ")";
-      param2DecorationText = "Parameter 2 (current: " + text2 + ")";
-      param3DecorationText = "Parameter 3 (current: " + text3 + ")";
-      ConnectUSBPageState.sendParamsToSTM(
-        param1Text.text == "" ? param1 : int.tryParse(param1Text.text), 
-        param2Text.text == "" ? param2 : int.tryParse(param2Text.text), 
-        param3Text.text == "" ? param3 : int.tryParse(param3Text.text), 
-      );
-    }
-    
-    param1Text.text = "";
-    param2Text.text = "";
-    param3Text.text = "";
-  }
 
   void adjustKMethod() {
     MyAppState.generateSeries();
@@ -167,7 +129,7 @@ class ConfigurationPage extends StatelessWidget {
 
   void ambuMethod() {
     if (ConnectUSBPageState.connectedToSTM()) {
-      ConnectUSBPageState.sendDataToSTM(MyAppState.ambuIdentifier);
+      ConnectUSBPageState.sendDataToSTM(MyAppState.plotIdenfitifer);
     }
     else {
 
@@ -196,32 +158,6 @@ class ConfigurationPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start, 
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        ButtonTheme(
-                          minWidth: buttonWidth,
-                          padding: EdgeInsets.all(buttonPadding),
-                          child: RaisedButton(
-                            color: MyAppState.buttonBackgroundColorLight,
-                            elevation: buttonElevation,
-                            padding: EdgeInsets.all(buttonPadding),
-                            child: Text(button1Text, 
-                              style: MyAppState.largeButtonTextStyleDark), 
-                            onPressed: () async
-                            {
-                              // Parametros
-                              adjustParametersMethod();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 25),
-                        Expanded(child: TextField(controller: param1Text, decoration: InputDecoration(labelText: param1DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                        const SizedBox(width: 25),
-                        Expanded(child: TextField(controller: param2Text, decoration: InputDecoration(labelText: param2DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                        const SizedBox(width: 25),
-                        Expanded(child: TextField(controller: param3Text, decoration: InputDecoration(labelText: param3DecorationText), keyboardType: TextInputType.numberWithOptions(decimal: true)), flex: 1),
-                      ],
-                    ),
                     Row(
                       children: <Widget>[
                         ButtonTheme(
@@ -376,12 +312,35 @@ class ConfigurationPage extends StatelessWidget {
                             color: MyAppState.buttonBackgroundColorLight,
                             elevation: buttonElevation,
                             padding: EdgeInsets.all(buttonPadding),
-                            child: Text('detener simulacion', 
+                            child: Text('Detener simulacion', 
                               style: MyAppState.largeButtonTextStyleDark), 
                             onPressed: () 
                             {
                               if (ConnectUSBPageState.testTimer.isActive)
                                 ConnectUSBPageState.testTimer.cancel();
+                            },
+                          ),
+                        ),
+                        ButtonTheme(
+                          minWidth: buttonWidth,
+                          padding: EdgeInsets.all(buttonPadding),
+                          child: RaisedButton(
+                            color: MyAppState.buttonBackgroundColorLight,
+                            elevation: buttonElevation,
+                            padding: EdgeInsets.all(buttonPadding),
+                            child: Text('Salir', 
+                              style: MyAppState.largeButtonTextStyleDark), 
+                            onPressed: () 
+                            {
+                              if (Navigator.canPop(context))
+                                Navigator.pop(context);
+
+                              Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) => DisplayPage()
+                                  )
+                              );
                             },
                           ),
                         ),

@@ -25,8 +25,8 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
   static const String confirmButtonText = 'Aceptar';
 
   TextEditingController controller1 = new TextEditingController(text: MyAppState.currentValue5RR.toString());
-  TextEditingController controller2 = new TextEditingController(text: MyAppState.currentValue6Vol.toString());
-  TextEditingController controller3 = new TextEditingController(text: MyAppState.currentValue7IE.toString());
+  TextEditingController controller2 = new TextEditingController(text: MyAppState.currentValue6IE.toString());
+  TextEditingController controller3 = new TextEditingController(text: MyAppState.currentValue7Vol.toString());
 
   @override
   void initState() {
@@ -41,8 +41,8 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
   static void acceptedInputToast() {
     Fluttertoast.showToast(
       msg: parameterText1 + ': ' + MyAppState.currentValue5RR.toString() + '\r\n' +
-        parameterText2 + ': ' + MyAppState.currentValue6Vol.toString() + '\r\n' +
-        parameterText3 + ': ' + MyAppState.currentValue7IE.toString(),
+        parameterText2 + ': ' + MyAppState.currentValue6IE.toString() + '\r\n' +
+        parameterText3 + ': ' + MyAppState.currentValue7Vol.toString(),
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       backgroundColor: MyAppState.toastBackground,

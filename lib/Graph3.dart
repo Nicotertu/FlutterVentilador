@@ -31,8 +31,9 @@ class Graph3Page extends StatelessWidget {
                     Expanded(
                       flex: 1, 
                       child: Container(
+                        width: double.infinity,
                         child: GestureDetector(
-                          child: MyAppState.lineChart3DataA.length != 0 ? 
+                          child: (MyAppState.lineChart3DataA.length != 0 && MyAppState.lineChart3DataB.length != 0) ? 
                             MyAppState.lineChart3 : 
                             Text("Error graficando"),
                           onTap: () 
