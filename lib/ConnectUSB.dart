@@ -75,6 +75,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
 
     _subscription = _transaction.stream.listen((String line) {
       parseDataFromUSB(line);
+      newCounter++;
       _serialData.add(Text(line));
       if (_serialData.length > 8) {
         _serialData.removeAt(0);
@@ -152,7 +153,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     millis = DateTime.now().hour * 3600000 + DateTime.now().minute * 60000 + DateTime.now().second * 1000 + DateTime.now().millisecond;
   }
 
-  static int timerRate = 15;
+  static int timerRate = 0;
   static Timer testTimer;
   static int counter = 0;
   static double counterr = 0;
@@ -173,13 +174,17 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   static List<double> rand2 = new List(arrayLength);
   static List<double> rand3 = new List(arrayLength);
   static List<double> rand4 = new List(arrayLength);
+  static List<double> rand5 = new List(arrayLength);
   static List<String> textSample = new List(arrayLength);
+  static int newCounter = 0;
   static void testFunc(Timer timer) {
     textSample[counterr.toInt()] = "";
     textWidgets.clear();
     counter++;
     textWidgets.add(Text("aaa,123456\r\n"));
-    parseDataFromUSB("RR: 45 X: 1 Tidal Vol: 500\r\n");
+    parseDataFromUSB("RR: 45 X: 1 Tidal Vol: 500 Ti: 2.2 Te: 1.5\r\n");
+
+    newCounter++;
 
     graphVariable1[counterr.toInt()] = math.sin(graph1Freq * counter/100);
     graphVariable2[counterr.toInt()] = math.sin(graph2Freq * counter/100);
@@ -188,6 +193,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     rand2[counterr.toInt()] = k2Amplitude * (1 + math.Random().nextInt(10) / 100);
     rand3[counterr.toInt()] = k3Amplitude * (1 + math.Random().nextInt(10) / 100);
     rand4[counterr.toInt()] = rand1[counterr.toInt()] + rand2[counterr.toInt()] + rand3[counterr.toInt()];
+    rand5[counterr.toInt()] = k3Amplitude * (1 + math.Random().nextInt(10) / 100);
 
     textSample[counterr.toInt()] = "DATATOGRAPH: ";
     int currMillis = -millis + (DateTime.now().hour * 3600000 + DateTime.now().minute * 60000 + DateTime.now().second * 1000 + DateTime.now().millisecond);
@@ -201,6 +207,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     textSample[counterr.toInt()] += MyAppState.value3Identifier + rand3[counterr.toInt()].toString();
     textSample[counterr.toInt()] += ",";
     textSample[counterr.toInt()] += MyAppState.value4Identifier + rand4[counterr.toInt()].toString();
+    textSample[counterr.toInt()] += ",";
+    textSample[counterr.toInt()] += MyAppState.value5Identifier + rand5[counterr.toInt()].toString();
     textSample[counterr.toInt()] += ",";
     textSample[counterr.toInt()] += MyAppState.graph1Identifier + graphVariable1[counterr.toInt()].toStringAsFixed(4);
     textSample[counterr.toInt()] += ",";
@@ -252,6 +260,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     handleErrors(data);
   }
 
+  static bool cycleA = true;
   static void handleData(String data) {
     String myData = "";
 
@@ -283,7 +292,9 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     else {
       //ERROR
     }
-    if (cycle != MyAppState.currentCycle) {
+
+    /*if (cycle != MyAppState.currentCycle) {
+      newCounter = 0;
       MyAppState.currentCycle = cycle;
       if (cycle%2 == 0) {
         MyAppState.lineChart1DataA.clear();
@@ -294,6 +305,23 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
         MyAppState.lineChart1DataB.clear();
         MyAppState.lineChart2DataB.clear();
         MyAppState.lineChart3DataB.clear();
+      }
+    }*/
+    if (cycle != MyAppState.currentCycle) {
+      newCounter = 0;
+      MyAppState.currentCycle = cycle;
+      if (cycle%3 == 0) {
+        cycleA = !cycleA;
+        if (cycleA) {
+          MyAppState.lineChart1DataA.clear();
+          MyAppState.lineChart2DataA.clear();
+          MyAppState.lineChart3DataA.clear();
+        }
+        else {
+          MyAppState.lineChart1DataB.clear();
+          MyAppState.lineChart2DataB.clear();
+          MyAppState.lineChart3DataB.clear();
+        }
       }
     }
     
@@ -307,7 +335,7 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       // removing the grabbed number
       data = data.substring(index + 1);
       // Classify the data
-      myData = classifyData(myData, numberString, position, cycle);
+      myData = classifyData(myData, numberString, position, cycleA);
     }
   }
 
@@ -349,56 +377,80 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
   }
 
   static void handleVerification(String data) {
+    bool show = false;
     if (data.contains(MyAppState.inspirationExpirationIdentifier)) {
       int startIndex = data.indexOf(MyAppState.inspirationExpirationIdentifier)+ MyAppState.inspirationExpirationIdentifier.length;
       int endIndex = data.indexOf(' ', startIndex);
-      int number = endIndex == -1 ? int.tryParse(data.substring(startIndex)) : int.tryParse(data.substring(startIndex, endIndex));
-      if (number != MyAppState.currentValue6IE) {
-        Fluttertoast.showToast(msg: 'CHANGE DETECTED\r\nIE from machine: ' + number.toString() + '\r\n' + 'IE from App: ' + MyAppState.currentValue7Vol.toString());
-        MyAppState.currentValue6IE = number;
+      double number = endIndex == -1 ? double.tryParse(data.substring(startIndex)) : double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.rightCurrentValue2IE) {
+        show = true;
+        MyAppState.rightCurrentValue2IE = number;
       }
     }
     if (data.contains(MyAppState.volumeIdentifier)) {
       int startIndex = data.indexOf(MyAppState.volumeIdentifier)+ MyAppState.volumeIdentifier.length;
       int endIndex = data.indexOf(' ', startIndex);
       int number = endIndex == -1 ? int.tryParse(data.substring(startIndex)) : int.tryParse(data.substring(startIndex, endIndex));
-      if (number != MyAppState.currentValue7Vol) {
-        Fluttertoast.showToast(msg: 'CHANGE DETECTED\r\nVol from machine: ' + number.toString() + '\r\n' + 'Vol from App: ' + MyAppState.currentValue6IE.toString());
-        MyAppState.currentValue7Vol = number;
+      if (number != MyAppState.rightCurrentValue5Vol) {
+        show = true;
+        MyAppState.rightCurrentValue5Vol = number;
       }
     }
     if (data.contains(MyAppState.respirationRateIdentifier)) {
       int startIndex = data.indexOf(MyAppState.respirationRateIdentifier)+ MyAppState.respirationRateIdentifier.length;
       int endIndex = data.indexOf(' ', startIndex);
       int number = endIndex == -1 ? int.tryParse(data.substring(startIndex)) : int.tryParse(data.substring(startIndex, endIndex));
-      if (number != MyAppState.currentValue5RR) {
-        Fluttertoast.showToast(msg: 'CHANGE DETECTED\r\nRR from machine: ' + number.toString() + '\r\n' + 'RR from App: ' + MyAppState.currentValue5RR.toString());
-        MyAppState.currentValue5RR = number;
+      if (number != MyAppState.rightCurrentValue1RR) {
+        show = true;
+        MyAppState.rightCurrentValue1RR = number;
       }
+    }
+    if (data.contains(MyAppState.inspirationTimeIdentifier)) {
+      int startIndex = data.indexOf(MyAppState.inspirationTimeIdentifier)+ MyAppState.inspirationTimeIdentifier.length;
+      int endIndex = data.indexOf(' ', startIndex);
+      double number = endIndex == -1 ? double.tryParse(data.substring(startIndex)) : double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.rightCurrentValue3Ti) {
+        show = true;
+        MyAppState.rightCurrentValue3Ti = number;
+      }
+    }
+    if (data.contains(MyAppState.expirationTimeIdentifier)) {
+      int startIndex = data.indexOf(MyAppState.expirationTimeIdentifier)+ MyAppState.expirationTimeIdentifier.length;
+      int endIndex = data.indexOf(' ', startIndex);
+      double number = endIndex == -1 ? double.tryParse(data.substring(startIndex)) : double.tryParse(data.substring(startIndex, endIndex));
+      if (number != MyAppState.rightCurrentValue4Te) {
+        show = true;
+        MyAppState.rightCurrentValue4Te = number;
+      }
+    }
+
+    if (show) {
+      show = false;
+      Fluttertoast.showToast(msg: 'CHANGE DETECTED');
     }
   }
 
-  static String classifyData(String myData, String numberString, double position, int cycle) {
+  static String classifyData(String myData, String numberString, double position, bool cycleA/*int cycle*/) {
     if (numberString.contains(MyAppState.graph1Identifier)){
       double number = myParse(numberString, MyAppState.graph1Identifier);
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, 1, cycle);
+      MyAppState.getDataFromUSBToGraph(position, number, 1, cycleA);
     }
     else if (numberString.contains(MyAppState.graph2Identifier)) {
       double number = myParse(numberString, MyAppState.graph2Identifier);
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, 2, cycle);
+      MyAppState.getDataFromUSBToGraph(position, number, 2, cycleA);
     }
     else if (numberString.contains(MyAppState.graph3Identifier)) {
       double number = myParse(numberString, MyAppState.graph3Identifier);
       // converting it to string to send it back to the screen
       myData += number.toString() + "\r\n";
       // refreshing the graph data
-      MyAppState.getDataFromUSBToGraph(position, number, 3, cycle);
+      MyAppState.getDataFromUSBToGraph(position, number, 3, cycleA);
     }
     else if (numberString.contains(MyAppState.value1Identifier)) {
       double number = myParse(numberString, MyAppState.value1Identifier);
@@ -427,6 +479,20 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
       myData += number.toStringAsFixed(2) + "\r\n";
       // updating the value
       MyAppState.getDataFromUSBToValues(number, 4);
+    }
+    else if (numberString.contains(MyAppState.value5Identifier)) {
+      double number = myParse(numberString, MyAppState.value5Identifier);
+      // converting it to string to send it back to the screen
+      myData += number.toString() + "\r\n";
+      // updating the value
+      MyAppState.getDataFromUSBToValues(number, 5);
+    }
+    else if (numberString.contains(MyAppState.value6Identifier)) {
+      double number = myParse(numberString, MyAppState.value6Identifier);
+      // converting it to string to send it back to the screen
+      myData += number.toString() + "\r\n";
+      // updating the value
+      MyAppState.getDataFromUSBToValues(number, 6);
     }
     return myData;
   }
@@ -487,8 +553,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
     }
   }
 
-  static void sendParamsToSTM(int param1, int param2, int param3) {
-    sendDataToSTM(MyAppState.paramIdentifier + " " + (param1 * 10).toString() + " " + (param2 * 10).toString() + " " + (param3).toString());
+  static void sendParamsToSTM(int param1, double param2, int param3) {
+    sendDataToSTM(MyAppState.paramIdentifier + " " + (param1 * 10).toStringAsFixed(0) + " " + (param2 * 10).toStringAsFixed(0) + " " + (param3).toStringAsFixed(0));
   }
 
   static void sendKValToSTM(String k1, String k2, String k3) {
@@ -559,8 +625,8 @@ class ConnectUSBPageState extends State<ConnectUSBPage> {
                 Text(_serialData.toString(), style: MyAppState.smallTextStyleLight),
                 Text(textWidgets.toString(), style: MyAppState.smallTextStyleLight),
                 Text('Last text sent to STM: ' + lastTextSent, style: MyAppState.smallTextStyleLight),
-                RaisedButton(onPressed: 
-    automateTransitionToDisplayPage,)
+                Text(newCounter.toString()),
+                RaisedButton(onPressed: automateTransitionToDisplayPage,),
                 ],
               )
             )

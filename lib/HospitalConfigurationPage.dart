@@ -24,9 +24,9 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
   static const String hintText3 = 'I:E';
   static const String confirmButtonText = 'Aceptar';
 
-  TextEditingController controller1 = new TextEditingController(text: MyAppState.currentValue5RR.toString());
-  TextEditingController controller2 = new TextEditingController(text: MyAppState.currentValue6IE.toString());
-  TextEditingController controller3 = new TextEditingController(text: MyAppState.currentValue7Vol.toString());
+  TextEditingController controller1 = new TextEditingController(text: MyAppState.rightCurrentValue1RR.toString());
+  TextEditingController controller2 = new TextEditingController(text: MyAppState.rightCurrentValue2IE.toString());
+  TextEditingController controller3 = new TextEditingController(text: MyAppState.rightCurrentValue5Vol.toString());
 
   @override
   void initState() {
@@ -40,9 +40,9 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
 
   static void acceptedInputToast() {
     Fluttertoast.showToast(
-      msg: parameterText1 + ': ' + MyAppState.currentValue5RR.toString() + '\r\n' +
-        parameterText2 + ': ' + MyAppState.currentValue6IE.toString() + '\r\n' +
-        parameterText3 + ': ' + MyAppState.currentValue7Vol.toString(),
+      msg: parameterText1 + ': ' + MyAppState.rightCurrentValue1RR.toString() + '\r\n' +
+        parameterText2 + ': ' + MyAppState.rightCurrentValue2IE.toString() + '\r\n' +
+        parameterText3 + ': ' + MyAppState.rightCurrentValue5Vol.toString(),
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       backgroundColor: MyAppState.toastBackground,
@@ -232,7 +232,7 @@ class HospitalConfigurationPageState extends State<HospitalConfigurationPage> {
                     if (validText && validNumbers) {
                       ConnectUSBPageState.sendParamsToSTM(
                         int.tryParse(controller1.text), 
-                        int.tryParse(controller2.text),
+                        double.tryParse(controller2.text),
                         int.tryParse(controller3.text), 
                       );
                     }

@@ -16,31 +16,46 @@ class DisplayPage extends StatefulWidget {
 }
 
 class DisplayPageState extends State<DisplayPage> {
-  static const String value1Title = "Vti (mL)";
-  static const String value2Title = "Vte (mL)";
-  static const String value3Title = "PIP (cmH2O)";
-  static const String value4Title = "PEEP (cmH2O)";
-  static const String value5Title = "RR (BPM)";
-  static const String value6Title = "I:E";
-  static const String value7Title = "Volumen (mL)";
-  static String value1Vti = "0";
-  static String value2Vte = "0";
-  static String value3PIP = "0";
-  static String value4PEEP = "0";
-  static String value5RR = "0";
-  static String value6IE = "0";
-  static String value7Vol = "0";
+  static const String leftValue1Title = "Vti (mL)";
+  static const String leftValue2Title = "Vte (mL)";
+  static const String leftValue3Title = "PIP (cmH2O)";
+  static const String leftValue4Title = "PEEP (cmH2O)";
+  static const String leftValue5Title = "PIF (LPM)";
+  static const String leftValue6Title = "PEF (LPM)";
+  static const String rightValue1Title = "RR (BPM)";
+  static const String rightValue2Title = "I:E";
+  static const String rightValue3Title = "Ti (s)";
+  static const String rightValue4Title = "Te (s)";
+  static const String rightValue5Title = "Volumen (mL)";
+  static String leftValue1Vti = "0";
+  static String leftValue2Vte = "0";
+  static String leftValue3PIP = "0";
+  static String leftValue4PEEP = "0";
+  static String leftValue5PIF = "0";
+  static String leftValue6PEF = "0";
+  static String rightValue1RR = "0";
+  static String rightValue2IE = "0";
+  static String rightValue3Ti = "0";
+  static String rightValue4Te = "0";
+  static String rightValue5Vol = "0";
   static String cycle = '0';
   bool paused = true;
 
-  static void updateStrings(double value1, double value2, double value3, double value4, int value5, int value6, int value7) {
-    value1Vti = value1.toInt().toString();
-    value2Vte = value2.toInt().toString();
-    value3PIP = value3.toStringAsFixed(2);
-    value4PEEP = value4.toStringAsFixed(2);
-    value5RR = value5.toString();
-    value6IE = value6.toString();
-    value7Vol = value7.toString();
+  static void updateLeftStrings(double value1, double value2, double value3, double value4, double value5, double value6) {
+    leftValue1Vti = value1.toInt().toString();
+    leftValue2Vte = value2.toInt().toString();
+    leftValue3PIP = value3.toStringAsFixed(2);
+    leftValue4PEEP = value4.toStringAsFixed(2);
+    leftValue5PIF = value5.toStringAsFixed(2);
+    leftValue6PEF = value6.toStringAsFixed(2);
+  }
+
+  static void updateRightStrings(int value1, double value2, double value3, double value4, int value5) {
+    rightValue1RR = value1.toString();
+    rightValue2IE = value2.toString();
+    rightValue3Ti = value3.toString();
+    rightValue4Te = value4.toString();
+    rightValue5Vol = value5.toString();
   }
 
   Timer checkIfConnectedTimer;
@@ -195,11 +210,11 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value1Title, style: MyAppState.mediumTextStyleLight)),
+              child: Text(leftValue1Title, style: MyAppState.mediumTextStyleLight)),
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value1Vti, style: MyAppState.largeTextStyleLight)),
+              child: Text(leftValue1Vti, style: MyAppState.largeTextStyleLight)),
           ],
         ),
         Column(
@@ -208,11 +223,11 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value2Title, style: MyAppState.mediumTextStyleLight)),
+              child: Text(leftValue2Title, style: MyAppState.mediumTextStyleLight)),
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value2Vte, style: MyAppState.largeTextStyleLight)),
+              child: Text(leftValue2Vte, style: MyAppState.largeTextStyleLight)),
           ],
         ),
         Column(
@@ -221,11 +236,11 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value3Title, style: MyAppState.mediumTextStyleLight)),
+              child: Text(leftValue3Title, style: MyAppState.mediumTextStyleLight)),
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value3PIP, style: MyAppState.largeTextStyleLight)),
+              child: Text(leftValue3PIP, style: MyAppState.largeTextStyleLight)),
           ],
         ),
         Column(
@@ -234,11 +249,37 @@ class DisplayPageState extends State<DisplayPage> {
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value4Title, style: MyAppState.mediumTextStyleLight)),
+              child: Text(leftValue4Title, style: MyAppState.mediumTextStyleLight)),
             Container(
               width: double.infinity,
               margin: EdgeInsets.all(2), 
-              child: Text(value4PEEP, style: MyAppState.largeTextStyleLight)),
+              child: Text(leftValue4PEEP, style: MyAppState.largeTextStyleLight)),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(2), 
+              child: Text(leftValue5Title, style: MyAppState.mediumTextStyleLight)),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(2), 
+              child: Text(leftValue5PIF, style: MyAppState.largeTextStyleLight)),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(2), 
+              child: Text(leftValue6Title, style: MyAppState.mediumTextStyleLight)),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(2), 
+              child: Text(leftValue6PEF, style: MyAppState.largeTextStyleLight)),
           ],
         ),
       ],
@@ -260,7 +301,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value5Title, 
+                  rightValue1Title, 
                   style: MyAppState.mediumTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
@@ -269,7 +310,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value5RR, 
+                  rightValue1RR, 
                   style: MyAppState.largeTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
@@ -297,7 +338,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value6Title, 
+                  rightValue2Title, 
                   style: MyAppState.mediumTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
@@ -306,8 +347,26 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value6IE, 
+                  "1 : " + rightValue2IE, 
                   style: MyAppState.largeTextStyleLight,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.all(2), 
+                child: Text(
+                  rightValue3Title + ": " + rightValue3Ti, 
+                  style: MyAppState.mediumTextStyleLight,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.all(2), 
+                child: Text(
+                  rightValue4Title + ": " + rightValue4Te, 
+                  style: MyAppState.mediumTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -325,7 +384,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value7Title, 
+                  rightValue5Title, 
                   style: MyAppState.mediumTextStyleLight,
                   textAlign: TextAlign.end,
                 ),
@@ -334,7 +393,7 @@ class DisplayPageState extends State<DisplayPage> {
                 width: double.infinity,
                 margin: EdgeInsets.all(2), 
                 child: Text(
-                  value7Vol, 
+                  rightValue5Vol, 
                   style: MyAppState.largeTextStyleLight,
                   textAlign: TextAlign.end,
                 ),

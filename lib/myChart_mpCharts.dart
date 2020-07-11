@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import 'main.dart';
 
@@ -20,7 +21,7 @@ class MyLineChart extends StatefulWidget {
 
   MyLineChart({
     @required this.data,
-    @required this.horizontalInterval,
+    this.horizontalInterval = 1,
     this.verticalInterval = 0.5,
     this.lineColor,
     this.areaColor,
@@ -48,6 +49,25 @@ class MyLineChartState extends State<MyLineChart> {
 
   @override
   Widget build(BuildContext context) {
+/*
+    return SfCartesianChart(
+      primaryXAxis: NumericAxis(desiredIntervals: 5),
+      primaryYAxis: NumericAxis(desiredIntervals: 5),
+      backgroundColor: Colors.black,
+      plotAreaBackgroundColor: Colors.white,
+      plotAreaBorderColor: Colors.purple,
+      borderColor: Colors.green,
+      borderWidth: 3,
+      series: <LineSeries<FlSpot, double>>[
+        LineSeries<FlSpot, double>(
+          dataSource: widget.data,
+          xValueMapper: (FlSpot sales, _) => sales.x,
+          yValueMapper: (FlSpot sales, _) => sales.y,
+          animationDuration: 0,
+        )
+      ]
+    );*/
+
     return LineChart(
       LineChartData(
         clipData: FlClipData(bottom: true, top: true, right: true, left: true),

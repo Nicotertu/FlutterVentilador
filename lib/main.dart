@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -99,19 +100,19 @@ class MyAppState extends State<MyApp> {
         content: Column(
           children: <Widget>[
             TextField(
-              decoration: InputDecoration(labelText: 'Actual: ' + currentValue5RR.toString()),
+              decoration: InputDecoration(labelText: 'Actual: ' + rightCurrentValue1RR.toString()),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               controller: param1Controller,
             ), 
             Text('RR', style: mediumTextStyleDark),
             TextField(
-              decoration: InputDecoration(labelText: 'Actual: ' + currentValue6IE.toString()),
+              decoration: InputDecoration(labelText: 'Actual: ' + rightCurrentValue2IE.toString()),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               controller: param2Controller,
             ),
             Text('I:E', style: mediumTextStyleDark),
             TextField(
-              decoration: InputDecoration(labelText: 'Actual: ' + currentValue7Vol.toString()),
+              decoration: InputDecoration(labelText: 'Actual: ' + rightCurrentValue5Vol.toString()),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               controller: param3Controller,
             ),
@@ -126,10 +127,12 @@ class MyAppState extends State<MyApp> {
                     bool validText = param1Controller.text != '' && param2Controller.text != '' && param3Controller.text != '';
                     bool validNumbers = int.tryParse(param1Controller.text) != null && int.tryParse(param2Controller.text) != null && int.tryParse(param3Controller.text) != null;
                     if (validText && validNumbers) {
+                      int decimales = 1;
+                      double ie = (double.tryParse(param2Controller.text) * pow(10, decimales)).round() / pow(10, decimales);
                       ConnectUSBPageState.sendParamsToSTM(
-                        int.tryParse(param1Controller.text), //RR
-                        int.tryParse(param2Controller.text), //Vol
-                        int.tryParse(param3Controller.text), //IE
+                        int.tryParse(param1Controller.text),
+                        ie, 
+                        int.tryParse(param3Controller.text), 
                       );
                       Navigator.pop(context);
                     }
@@ -179,7 +182,6 @@ class MyAppState extends State<MyApp> {
       case 1:
         // TODO: DOESNT WORK
         double range = ((maxYgraph1 - minYgraph1) * delta).clamp(0, 200);
-        log('a');
         minYgraph1 = - range / 2;
         maxYgraph1 = range / 2;
         break;
@@ -294,13 +296,17 @@ class MyAppState extends State<MyApp> {
   static double maxXgraph3 = 4;
   
   // Display values
-  static double currentValue1Vti = 0;
-  static double currentValue2Vte = 0;
-  static double currentValue3PIP = 0;
-  static double currentValue4PEEP = 0;
-  static int currentValue5RR = 0;
-  static int currentValue6IE = 0;
-  static int currentValue7Vol = 0;
+  static double leftCurrentValue1Vti = 0;
+  static double leftCurrentValue2Vte = 0;
+  static double leftCurrentValue3PIP = 0;
+  static double leftCurrentValue4PEEP = 0;
+  static double leftCurrentValue5PIF = 0;
+  static double leftCurrentValue6PEF = 0;
+  static int rightCurrentValue1RR = 0;
+  static double rightCurrentValue2IE = 0;
+  static double rightCurrentValue3Ti = 0;
+  static double rightCurrentValue4Te = 0;
+  static int rightCurrentValue5Vol = 0;
 
   // identifiers for when the data is received from STM32
   static const String inputAccepted = 'Combination accepted!';
@@ -316,6 +322,8 @@ class MyAppState extends State<MyApp> {
   static const String value2Identifier = 'rdos';
   static const String value3Identifier = 'rtres';
   static const String value4Identifier = 'rcuatro';
+  static const String value5Identifier = 'rcinco';
+  static const String value6Identifier = 'rseis';
   static const String graph1Identifier = 'guno';
   static const String graph2Identifier = 'gdos';
   static const String graph3Identifier = 'gtres';
@@ -323,6 +331,8 @@ class MyAppState extends State<MyApp> {
   static const String xIdentifier = 'xxx';
   static const String respirationRateIdentifier = 'RR: ';
   static const String inspirationExpirationIdentifier = 'X: ';
+  static const String inspirationTimeIdentifier = 'Ti: ';
+  static const String expirationTimeIdentifier = 'Te: ';
   static const String volumeIdentifier = 'Tidal Vol: ';
   static const String cycleIdenfitier = 'cycle';
 
@@ -343,7 +353,7 @@ class MyAppState extends State<MyApp> {
     // Hide android menu
     SystemChrome.setEnabledSystemUIOverlays([]);
 
-    setState(() {
+    setState(() {/*
       DisplayPageState.updateStrings(
         currentValue1Vti, 
         currentValue2Vte, 
@@ -352,7 +362,9 @@ class MyAppState extends State<MyApp> {
         currentValue5RR,
         currentValue6IE,
         currentValue7Vol
-      );
+      );*/
+      DisplayPageState.updateLeftStrings(leftCurrentValue1Vti, leftCurrentValue2Vte, leftCurrentValue3PIP, leftCurrentValue4PEEP, leftCurrentValue5PIF, leftCurrentValue6PEF);
+      DisplayPageState.updateRightStrings(rightCurrentValue1RR, rightCurrentValue2IE, rightCurrentValue3Ti, rightCurrentValue4Te, rightCurrentValue5Vol);
       lineChart1 = MyLineChart(
         data: lineChart1DataA + [FlSpot(0,null)] + lineChart1DataB,
         horizontalInterval: autoRange? graph1StandardInterval:graph1Interval,
@@ -426,11 +438,12 @@ class MyAppState extends State<MyApp> {
   static int lastIndexModified3 = null;
   static int currentCycle = 0;
   
-  static void getDataFromUSBToGraph(double xValue, double yValue, int graph, int cycle) {
+  static void getDataFromUSBToGraph(double xValue, double yValue, int graph, bool cycleA/*int cycle*/) {
     xValue = convertMillisecondToSecond(xValue);
     switch (graph) {
       case 1:
-        if (cycle%2 == 0) {
+        //if (cycle%2 == 0) {
+        if (cycleA) {
           int firstLargerXIndex = 0;
           for (int i = 0; i < lineChart1DataB.length; i++) {
             if(lineChart1DataB[i].x > xValue) {
@@ -458,7 +471,8 @@ class MyAppState extends State<MyApp> {
         }
       break;
       case 2:
-        if (cycle%2 == 0) {
+        //if (cycle%2 == 0) {
+        if (cycleA) {
           int firstLargerXIndex = 0;
           for (int i = 0; i < lineChart2DataB.length; i++) {
             if(lineChart2DataB[i].x > xValue) {
@@ -486,7 +500,8 @@ class MyAppState extends State<MyApp> {
         }
       break;
       case 3:
-        if (cycle%2 == 0) {
+        //if (cycle%2 == 0) {
+        if (cycleA) {
           int firstLargerXIndex = 0;
           for (int i = 0; i < lineChart3DataB.length; i++) {
             if(lineChart3DataB[i].x > xValue) {
@@ -683,16 +698,22 @@ class MyAppState extends State<MyApp> {
   static void getDataFromUSBToValues(double value, int valueIndex) {
     switch (valueIndex) {
       case 1:
-        currentValue1Vti = value;
+        leftCurrentValue1Vti = value;
         break;
       case 2:
-        currentValue2Vte = value;
+        leftCurrentValue2Vte = value;
         break;
       case 3:
-        currentValue3PIP = value;
+        leftCurrentValue3PIP = value;
         break;
       case 4:
-        currentValue4PEEP = value;
+        leftCurrentValue4PEEP = value;
+        break;
+      case 5:
+        leftCurrentValue5PIF = value;
+        break;
+      case 6:
+        leftCurrentValue6PEF = value;
         break;
       default:
     }
